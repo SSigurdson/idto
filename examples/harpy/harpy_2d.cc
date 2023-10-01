@@ -27,10 +27,6 @@ class Harpy2dExample : public TrajOptExample {
  public:
   Harpy2dExample() {
     meshcat_->Set2dRenderMode();
-    //// Set the camera viewpoint
-    //const Vector3d camera_pose(0.5, -2.0, 0.5);
-    //const Vector3d target_pose(0.0, 0.0, 0.0);
-    //meshcat_->SetCameraPose(camera_pose, target_pose);
   }
 
  private:

@@ -35,7 +35,7 @@ max_iters : 200               # maximum Gauss-Newton iterations
 method : "trust_region"       # solver method, {linesearch, trust_region}
 scaling : true
 scaling_method : "double_sqrt"
-equality_constraints : false
+equality_constraints : true
 linear_solver : "pentadiagonal_lu"
 Delta0 : 1e-3
 num_threads : 4 

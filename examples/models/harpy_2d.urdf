@@ -97,6 +97,18 @@
     <axis xyz="0 -1 0"/>
     <origin xyz="0 0 -0.15" rpy="0 0 0"/>
   </joint>
+  
+  <!-- Actuators --> 
+  <transmission type="SimpleTransmission" name="hip_trans">
+    <actuator name="hip"/>
+    <joint name="hip_joint"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
+  <transmission type="SimpleTransmission" name="knee_trans">
+    <actuator name="knee"/>
+    <joint name="knee_joint"/>
+    <mechanicalReduction>1</mechanicalReduction>
+  </transmission>
 
 </robot>
 
