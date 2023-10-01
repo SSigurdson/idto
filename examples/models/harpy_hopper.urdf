@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<robot name="harpy">
+  <material name="black">
+    <color rgba=".2 .2 .2 1"/>
+  </material>
+
+  <!-- Torso -->
+  <link name="torso">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="0.00083" ixy="0" ixz="0" iyy=".00083" iyz="0" izz="0.00083"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="base_joint" type="planar">
+    <parent link="world"/>
+    <child link="torso"/>
+    <axis xyz="0 -1 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Upper leg -->
+  <link name="upper_leg">
+    <inertial>
+      <origin xyz="0 0 -0.05" rpy="0 0 0"/>
+      <mass value="0.02"/>
+      <inertia ixx="1.7e-5" iyy="1.7e-5" izz="2.5e-7" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.005"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="hip_joint" type="revolute">
+    <parent link="torso"/>
+    <child link="upper_leg"/>
+    <axis xyz="0 -1 0"/>
+    <origin xyz="0 0 -0.05" rpy="0 0 0"/>
+  </joint>
+      
+  <!-- Lower leg -->
+  <link name="lower_leg">
+    <inertial>
+      <origin xyz="0 0 -0.075" rpy="0 0 0"/>
+      <mass value="0.03"/>
+      <inertia ixx="5.6e-5" iyy="5.6e-5" izz="3.8e-7" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 -0.075" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.15" radius="0.005"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="knee_joint" type="revolute">
+    <parent link="upper_leg"/>
+    <child link="lower_leg"/>
+    <axis xyz="0 -1 0"/>
+    <origin xyz="0 0 -0.1" rpy="0 0 0"/>
+  </joint>
+  
+  <!-- Foot -->
+  <link name="foot">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.005"/>
+      <inertia ixx="2e-7" iyy="2e-7" izz="2e-7" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="ankle_joint" type="fixed">
+    <parent link="lower_leg"/>
+    <child link="foot"/>
+    <axis xyz="0 -1 0"/>
+    <origin xyz="0 0 -0.15" rpy="0 0 0"/>
+  </joint>
+
+</robot>
+
