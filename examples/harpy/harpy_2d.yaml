@@ -21,10 +21,10 @@ q_guess   : [ 1.0, 0.26, 0.0,-0.8, 1.3]
 Qq : [1.0, 1.0, 1.0, 1.0, 1.0]      # Running cost
 Qv : [0.1, 0.1, 0.1, 0.1, 0.1]
 
-R : [1e0, 1e0, 1e2, 0.1, 0.1]
+R : [1e-1, 1e-1, 1e2, 0.1, 0.1]
 
-Qfq : [10, 1000, 10, 10, 10]  # Terminal cost
-Qfv : [1.0, 1.0, 1.0, 1.0, 1.0]
+Qfq : [10, 100, 10, 10, 10]  # Terminal cost
+Qfv : [1.0, 0.0, 1.0, 1.0, 1.0]
 
 # Problem definition parameters
 time_step : 0.05   # Discretization timestep (seconds)
@@ -65,7 +65,7 @@ print_debug_data : false
 save_solver_stats_csv : true
 
 # Contact model parameters. 
-contact_stiffness : 800     # normal force stiffness, in N/m
+contact_stiffness : 1000     # normal force stiffness, in N/m
 dissipation_velocity : 0.1  # Hunt & Crossley-like model parameter, in m/s.
 
 # Amount of smoothing (and therefore force at a distance) to apply when

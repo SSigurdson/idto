@@ -56,8 +56,10 @@ class Harpy2dExample : public TrajOptExample {
 
   void UpdateCustomMeshcatElements(const VectorXd& q, const VectorXd& tau,
                                    const double time) const final {
-    // Display thruster forces on th base
+    // Display thruster forces on the base
+    const double scale_factor = 0.1;
     Eigen::Vector3d force(tau[0], 0.0, tau[1]);
+    force *= scale_factor;
     const Eigen::Vector3d origin(q[0], -0.05, q[1]);
     const double height = force.norm();
 
