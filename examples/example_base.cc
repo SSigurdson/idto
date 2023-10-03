@@ -309,14 +309,20 @@ TrajectoryOptimizerSolution<double> TrajOptExample::SolveTrajectoryOptimization(
 
   // Play back the result on the visualizer
   if (options.play_optimal_trajectory) {
-    PlayBackTrajectory(solution.q, options.time_step);
+    PlayBackTrajectory(solution.q, options.time_step, solution.tau);
   }
 
   return solution;
 }
 
-void TrajOptExample::PlayBackTrajectory(const std::vector<VectorXd>& q,
-                                        const double time_step) const {
+void TrajOptExample::PlayBackTrajectory(
+    const std::vector<VectorXd>& q, const double time_step,
+    const std::optional<std::vector<VectorXd>>& tau) const {
+  const int N = q.size();
+  if (tau) {
+    DRAKE_DEMAND(static_cast<int>(tau->size()) == N - 1);
+  }
+
   // Create a system diagram that includes the plant and is connected to
   // the meshcat visualizer
   DiagramBuilder<double> builder;
@@ -339,16 +345,38 @@ void TrajOptExample::PlayBackTrajectory(const std::vector<VectorXd>& q,
   const VectorXd u = VectorXd::Zero(plant.num_actuators());
   plant.get_actuation_input_port().FixValue(&plant_context, u);
 
+  // DEBUG: harpy specific visualization
+  const drake::geometry::Cylinder cylinder(0.005, 1.0);
+  const drake::geometry::Rgba color(1.0, 0.1, 0.1, 1.0);
+  meshcat_->SetObject("thruster", cylinder, color);
+
   // Set up a recording for later playback in Meshcat
   MeshcatAnimation* animation = visualizer.StartRecording();
   animation->set_autoplay(false);
 
   // Step through q, setting the plant positions at each step accordingly
-  const int N = q.size();
   for (int t = 0; t < N; ++t) {
-    diagram_context->SetTime(t * time_step);
+    const double time = t * time_step;
+    diagram_context->SetTime(time);
     plant.SetPositions(&plant_context, q[t]);
     diagram->ForcedPublish(*diagram_context);
+
+    // DEBUG: harpy specific visualization
+    Eigen::Vector3d force;
+    if (t < N-1) {
+      force << tau->at(t)[0], 0.0, tau->at(t)[1];
+    } else {
+      force << tau->at(t-1)[0], 0.0, tau->at(t-1)[1];
+    }
+    const Eigen::Vector3d origin(q[t](0), -0.05, q[t](1));
+    const double height = force.norm();
+
+    RigidTransformd X_WO(origin);
+    RigidTransformd X_OC(
+        drake::math::RotationMatrixd::MakeFromOneVector(force, 2), 0.5 * force);
+    RigidTransformd X_WC = X_WO * X_OC;
+    meshcat_->SetProperty("thruster", "scale", {1, 1, height}, time);
+    meshcat_->SetTransform("thruster", X_WC, time);
 
     // Hack to make the playback roughly realtime
     // TODO(vincekurtz): add realtime rate option?

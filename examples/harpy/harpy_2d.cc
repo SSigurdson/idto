@@ -26,7 +26,7 @@ using Eigen::Vector3d;
 class Harpy2dExample : public TrajOptExample {
  public:
   Harpy2dExample() {
-    meshcat_->Set2dRenderMode();
+    //meshcat_->Set2dRenderMode();
   }
 
  private:

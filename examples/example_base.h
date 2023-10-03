@@ -158,8 +158,9 @@ class TrajOptExample {
    * @param q sequence of generalized positions defining the trajectory
    * @param time_step time step (seconds) for the discretization
    */
-  void PlayBackTrajectory(const std::vector<VectorXd>& q,
-                          const double time_step) const;
+  void PlayBackTrajectory(
+      const std::vector<VectorXd>& q, const double time_step,
+      const std::optional<std::vector<VectorXd>>& tau = std::nullopt) const;
 
   /**
    * Return a vector that interpolates linearly between q_start and q_end.
