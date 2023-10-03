@@ -26,7 +26,7 @@ using Eigen::Vector3d;
 class Harpy2dExample : public TrajOptExample {
  public:
   Harpy2dExample() {
-    //meshcat_->Set2dRenderMode();
+    meshcat_->Set2dRenderMode();
   }
 
  private:
@@ -46,6 +46,28 @@ class Harpy2dExample : public TrajOptExample {
                                      Box(25, 25, 10), "ground",
                                      CoulombFriction<double>(0.5, 0.5));
   }
+
+  void CreateCustomMeshcatElements(const TrajOptExampleParams&) const final {
+    // Add an arrow showing force on the base
+    const drake::geometry::Cylinder cylinder(0.005, 1.0);
+    const drake::geometry::Rgba color(1.0, 0.1, 0.1, 1.0);
+    meshcat_->SetObject("thruster", cylinder, color);
+  }
+
+  void UpdateCustomMeshcatElements(const VectorXd& q, const VectorXd& tau,
+                                   const double time) const final {
+    // Display thruster forces on th base
+    Eigen::Vector3d force(tau[0], 0.0, tau[1]);
+    const Eigen::Vector3d origin(q[0], -0.05, q[1]);
+    const double height = force.norm();
+
+    RigidTransformd X_WO(origin);
+    RigidTransformd X_OC(
+        drake::math::RotationMatrixd::MakeFromOneVector(force, 2), 0.5 * force);
+    RigidTransformd X_WC = X_WO * X_OC;
+    meshcat_->SetProperty("thruster", "scale", {1, 1, height}, time);
+    meshcat_->SetTransform("thruster", X_WC, time);
+  };
 };
 
 }  // namespace harpy_2d

@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <memory>
+#include <optional>
 #include <string>
 #include <thread>
 #include <vector>
@@ -133,12 +134,23 @@ class TrajOptExample {
   virtual void CreatePlantModel(MultibodyPlant<double>*) const {}
 
   /**
-   * Update any custom meshcat visualizations, such as a frame that illustrates
+   * Set up any custom meshcat visualizations, such as a frame that illustrates
    * a target pose. In most cases this is not used.
    *
    * @param options Options that we read from YAML
    */
-  virtual void UpdateCustomMeshcatElements(const TrajOptExampleParams&) const {}
+  virtual void CreateCustomMeshcatElements(const TrajOptExampleParams&) const {}
+
+  /**
+   * Update any custom meshcat visualizations during playback. In most cases
+   * this is not used.
+   *
+   * @param q The system configuration at this timestep
+   * @param tau Generalized forces on the system at tis timestep
+   * @param time Time associated with this update, for recording
+   */
+  virtual void UpdateCustomMeshcatElements(const VectorXd&, const VectorXd&,
+                                           const double) const {}
 
   /**
    * Create a MultibodyPlant model of the system to use for simulation (i.e., to

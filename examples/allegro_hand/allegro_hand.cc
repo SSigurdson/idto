@@ -67,7 +67,7 @@ class AllegroHandExample : public TrajOptExample {
   }
 
  private:
-  void UpdateCustomMeshcatElements(
+  void CreateCustomMeshcatElements(
       const TrajOptExampleParams& options) const final {
     // Visualize the target pose for the ball
     const Vector3d target_position = options.q_nom_end.tail(3);

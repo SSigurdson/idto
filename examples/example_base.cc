@@ -31,7 +31,7 @@ void TrajOptExample::RunExample(const std::string options_file) const {
       drake::yaml::LoadYamlFile<TrajOptExampleParams>(
           idto::FindIdtoResourceOrThrow(options_file), {}, default_options);
 
-  UpdateCustomMeshcatElements(options);
+  CreateCustomMeshcatElements(options);
 
   if (options.mpc) {
     // Run a simulation that uses the optimizer as a model predictive controller
@@ -345,11 +345,6 @@ void TrajOptExample::PlayBackTrajectory(
   const VectorXd u = VectorXd::Zero(plant.num_actuators());
   plant.get_actuation_input_port().FixValue(&plant_context, u);
 
-  // DEBUG: harpy specific visualization
-  const drake::geometry::Cylinder cylinder(0.005, 1.0);
-  const drake::geometry::Rgba color(1.0, 0.1, 0.1, 1.0);
-  meshcat_->SetObject("thruster", cylinder, color);
-
   // Set up a recording for later playback in Meshcat
   MeshcatAnimation* animation = visualizer.StartRecording();
   animation->set_autoplay(false);
@@ -361,22 +356,11 @@ void TrajOptExample::PlayBackTrajectory(
     plant.SetPositions(&plant_context, q[t]);
     diagram->ForcedPublish(*diagram_context);
 
-    // DEBUG: harpy specific visualization
-    Eigen::Vector3d force;
-    if (t < N-1) {
-      force << tau->at(t)[0], 0.0, tau->at(t)[1];
-    } else {
-      force << tau->at(t-1)[0], 0.0, tau->at(t-1)[1];
+    // Update any extra visualizations, e.g. unactuated forces
+    if (tau) {
+      const VectorXd tau_t = (t < N-1) ? tau->at(t) : tau->at(t-1);
+      UpdateCustomMeshcatElements(q[t], tau_t, time);
     }
-    const Eigen::Vector3d origin(q[t](0), -0.05, q[t](1));
-    const double height = force.norm();
-
-    RigidTransformd X_WO(origin);
-    RigidTransformd X_OC(
-        drake::math::RotationMatrixd::MakeFromOneVector(force, 2), 0.5 * force);
-    RigidTransformd X_WC = X_WO * X_OC;
-    meshcat_->SetProperty("thruster", "scale", {1, 1, height}, time);
-    meshcat_->SetTransform("thruster", X_WC, time);
 
     // Hack to make the playback roughly realtime
     // TODO(vincekurtz): add realtime rate option?
