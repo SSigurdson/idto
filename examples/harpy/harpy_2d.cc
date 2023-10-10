@@ -130,6 +130,6 @@ int main(int argc, char* argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
   idto::examples::harpy_2d::Harpy2dExample example;
-  example.RunExample("idto/examples/harpy/harpy_2d.yaml");
+  example.RunExample("idto/examples/harpy/harpy_2d.yaml", FLAGS_test);
   return 0;
 }

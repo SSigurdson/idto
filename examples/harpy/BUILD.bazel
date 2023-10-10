@@ -20,5 +20,21 @@ cc_binary(
     ],
 )
 
-add_lint_tests()
+cc_test(
+    name = "harpy_2d_test",
+    srcs = ["harpy_2d.cc"],
+    args = ["--test"],
+    data = [
+        ":harpy_2d.yaml",
+        "//examples:models",
+    ],
+    deps = [
+        "//examples:example_base",
+        "//utils:find_resource",
+        "@drake//multibody/parsing",
+        "@drake//multibody/plant",
+        "@gflags"
+    ],
+)
 
+add_lint_tests()
