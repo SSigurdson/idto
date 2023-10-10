@@ -17,7 +17,6 @@ The easiest way to install these dependencies is with Drake's
 [`install_prereqs.sh`](https://drake.mit.edu/from_source.html#mandatory-platform-specific-instructions)
 script:
 
-Compile the package:
 ```
 git clone https://github.com/RobotLocomotion/drake.git
 cd drake
