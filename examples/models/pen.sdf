@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+  <!-- Model of an oversized pen for the allegro hand -->
+  <model name="pen">
+    <link name="base_link">
+      <inertial>
+        <pose>0 0 0 0 0 0</pose>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>0.00038228</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00038228</iyy>
+          <iyz>0</iyz>
+          <izz>4.9375e-06</izz>
+        </inertia>
+      </inertial>
+      <visual name="pen_visual">
+        <geometry>
+          <capsule>
+            <radius>0.01</radius>
+            <length>0.20</length>
+          </capsule>
+        </geometry>
+        <material>
+          <diffuse>0.8 0.2 0.2 1</diffuse>
+        </material>
+      </visual>
+      <collision name="pen_collision">
+        <geometry>
+          <capsule>
+            <radius>0.01</radius>
+            <length>0.20</length>
+          </capsule>
+        </geometry>
+      </collision>  
+    </link>
+  </model>
+</sdf>
