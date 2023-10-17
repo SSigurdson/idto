@@ -26,8 +26,8 @@ class AllegroFrankaNoManipulandExample : public TrajOptExample {
  public:
   AllegroFrankaNoManipulandExample() {
     // Set the camera viewpoint
-    const Vector3d camera_pose(0.3, 0.0, 0.5);
-    const Vector3d target_pose(0.0, 0.0, 0.0);
+    const Vector3d camera_pose(3.0, 0.0, 1.0);
+    const Vector3d target_pose(0.0, 0.0, 0.5);
     meshcat_->SetCameraPose(camera_pose, target_pose);
   }
 
@@ -36,7 +36,8 @@ class AllegroFrankaNoManipulandExample : public TrajOptExample {
     // Add a model of the hand
     std::string sdf_file = idto::FindIdtoResourceOrThrow(
         "idto/examples/models/fr3_algr_minimal_collision.urdf");
-    Parser(plant).AddModels(sdf_file);
+    ModelInstanceIndex robot = Parser(plant).AddModels(sdf_file)[0];
+    plant->set_gravity_enabled(robot, false);
   }
 };
 
