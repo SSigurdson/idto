@@ -7,19 +7,19 @@
         <pose>0 0 0 0 0 0</pose>
         <mass>0.1</mass>
         <inertia>
-          <ixx>0.00038228</ixx>
+          <ixx>0.00061429</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.00038228</iyy>
+          <iyy>0.00061429</iyy>
           <iyz>0</iyz>
-          <izz>4.9375e-06</izz>
+          <izz>1.1083e-05</izz>
         </inertia>
       </inertial>
       <visual name="pen_visual">
         <geometry>
           <capsule>
-            <radius>0.01</radius>
-            <length>0.20</length>
+            <radius>0.015</radius>
+            <length>0.25</length>
           </capsule>
         </geometry>
         <material>
@@ -29,8 +29,8 @@
       <collision name="pen_collision">
         <geometry>
           <capsule>
-            <radius>0.01</radius>
-            <length>0.20</length>
+            <radius>0.015</radius>
+            <length>0.25</length>
           </capsule>
         </geometry>
       </collision>  

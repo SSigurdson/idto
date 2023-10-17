@@ -20,12 +20,45 @@ cc_binary(
     ],
 )
 
+cc_binary(
+    name="allegro_franka",
+    srcs=["allegro_franka.cc"],
+    data=[
+        ":allegro_franka.yaml",
+        "//examples:models",
+    ],
+    deps=[
+        "//examples:example_base",
+        "//utils:find_resource",
+        "@drake//multibody/parsing",
+        "@drake//multibody/plant",
+        "@gflags",
+    ],
+)
+
 cc_test(
     name="no_manipuland_test",
     srcs=["no_manipuland.cc"],
     args=["--test"],
     data=[
         ":no_manipuland.yaml",
+        "//examples:models",
+    ],
+    deps=[
+        "//examples:example_base",
+        "//utils:find_resource",
+        "@drake//multibody/parsing",
+        "@drake//multibody/plant",
+        "@gflags",
+    ],
+)
+
+cc_test(
+    name="allegro_franka_test",
+    srcs=["allegro_franka.cc"],
+    args=["--test"],
+    data=[
+        ":allegro_franka.yaml",
         "//examples:models",
     ],
     deps=[
