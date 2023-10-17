@@ -1,0 +1,38 @@
+# -*- python -*-
+
+package(default_visibility = ["//visibility:public"])
+
+load("//tools/lint:lint.bzl", "add_lint_tests")
+
+cc_binary(
+    name="no_manipuland",
+    srcs=["no_manipuland.cc"],
+    data=[
+        ":no_manipuland.yaml",
+        "//examples:models",
+    ],
+    deps=[
+        "//examples:example_base",
+        "//utils:find_resource",
+        "@drake//multibody/parsing",
+        "@drake//multibody/plant",
+        "@gflags",
+    ],
+)
+
+cc_test(
+    name="no_manipuland_test",
+    srcs=["no_manipuland.cc"],
+    args=["--test"],
+    data=[
+        ":no_manipuland.yaml",
+        "//examples:models",
+    ],
+    deps=[
+        "//examples:example_base",
+        "//utils:find_resource",
+        "@drake//multibody/parsing",
+        "@drake//multibody/plant",
+        "@gflags",
+    ],
+)
