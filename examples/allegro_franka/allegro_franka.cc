@@ -25,8 +25,8 @@ class AllegroFrankaExample : public TrajOptExample {
  public:
   AllegroFrankaExample() {
     // Set the camera viewpoint
-    const Vector3d camera_pose(3.0, 0.0, 1.0);
-    const Vector3d target_pose(0.0, 0.0, 0.5);
+    const Vector3d camera_pose(1.0, 1.0, 0.3);
+    const Vector3d target_pose(0.2, 0.0, 0.2);
     meshcat_->SetCameraPose(camera_pose, target_pose);
   }
 
