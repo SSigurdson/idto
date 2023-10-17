@@ -1091,4 +1091,22 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
   </joint>
   <link name="algr_rh_th_CONTACT3"/>
 
+  <!-- Ignore all self-collisions within the hand (for now) -->
+  <drake:collision_filter_group name="all_links">
+    <drake:member link="algr_rh_palm"/>
+    <drake:member link="algr_rh_if_bs"/>
+    <drake:member link="algr_rh_if_px"/>
+    <drake:member link="algr_rh_if_md"/>
+    <drake:member link="algr_rh_if_ds"/>
+    <drake:member link="algr_rh_mf_bs"/>
+    <drake:member link="algr_rh_mf_px"/>
+    <drake:member link="algr_rh_mf_md"/>
+    <drake:member link="algr_rh_mf_ds"/>
+    <drake:member link="algr_rh_rf_bs"/>
+    <drake:member link="algr_rh_rf_px"/>
+    <drake:member link="algr_rh_rf_md"/>
+    <drake:member link="algr_rh_rf_ds"/>
+    <drake:ignored_collision_filter_group name="all_links"/>
+  </drake:collision_filter_group>
+
 </robot>
