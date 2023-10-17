@@ -128,7 +128,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="./meshes/fr3/visual/link0.dae"/>
+        <mesh filename="./meshes/fr3/visual/link0.obj"/>
       </geometry>
       <material name="fr3_white">
         <color rgba="1. 1. 1. 1."/>
@@ -143,7 +143,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="./meshes/fr3/visual/link1.dae"/>
+        <mesh filename="./meshes/fr3/visual/link1.obj"/>
       </geometry>
       <material name="fr3_white"/>
     </visual>
@@ -164,7 +164,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="./meshes/fr3/visual/link2.dae"/>
+        <mesh filename="./meshes/fr3/visual/link2.obj"/>
       </geometry>
       <material name="fr3_white"/>
     </visual>
@@ -185,7 +185,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="./meshes/fr3/visual/link3.dae"/>
+        <mesh filename="./meshes/fr3/visual/link3.obj"/>
       </geometry>
       <material name="fr3_red">
         <color rgba="1. 1. 1. 1."/>
@@ -208,7 +208,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="./meshes/fr3/visual/link4.dae"/>
+        <mesh filename="./meshes/fr3/visual/link4.obj"/>
       </geometry>
       <material name="fr3_white"/>
     </visual>
@@ -229,7 +229,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="./meshes/fr3/visual/link5.dae"/>
+        <mesh filename="./meshes/fr3/visual/link5.obj"/>
       </geometry>
       <material name="fr3_white"/>
     </visual>
@@ -250,7 +250,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="./meshes/fr3/visual/link6.dae"/>
+        <mesh filename="./meshes/fr3/visual/link6.obj"/>
       </geometry>
       <material name="fr3_white"/>
     </visual>
@@ -271,7 +271,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
     </inertial>
     <visual>
       <geometry>
-        <mesh filename="./meshes/fr3/visual/link7.dae"/>
+        <mesh filename="./meshes/fr3/visual/link7.obj"/>
       </geometry>
       <material name="fr3_white"/>
     </visual>
