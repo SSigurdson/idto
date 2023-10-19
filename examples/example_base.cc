@@ -8,17 +8,15 @@
 #include "examples/mpc_controller.h"
 #include "examples/pd_plus_controller.h"
 #include <drake/common/fmt_eigen.h>
-#include <drake/geometry/meshcat_visualizer.h>
 #include <drake/systems/primitives/discrete_time_delay.h>
 #include <drake/visualization/visualization_config_functions.h>
 
 namespace idto {
 namespace examples {
 
-using drake::geometry::MeshcatAnimation;
-using drake::geometry::MeshcatVisualizerd;
 using drake::math::RigidTransformd;
 using drake::systems::DiscreteTimeDelay;
+using drake::visualization::AddDefaultVisualization;
 using Eigen::Matrix4d;
 using mpc::Interpolator;
 using mpc::ModelPredictiveController;
@@ -78,8 +76,7 @@ void TrajOptExample::RunModelPredictiveControl(
   const int nu = plant.num_actuators();
 
   // Connect to the Meshcat visualizer
-  auto& visualizer =
-      MeshcatVisualizerd::AddToBuilder(&builder, scene_graph, meshcat_);
+  AddDefaultVisualization(&builder, meshcat_);
 
   // Create a system model for the controller
   DiagramBuilder<double> ctrl_builder;
@@ -171,11 +168,10 @@ void TrajOptExample::RunModelPredictiveControl(
   simulator.Initialize();
 
   // Run the simulation, recording the result for later playback in MeshCat
-  MeshcatAnimation* animation = visualizer.StartRecording();
-  animation->set_autoplay(false);
+  meshcat_->StartRecording();
   simulator.AdvanceTo(options.sim_time);
-  visualizer.StopRecording();
-  visualizer.PublishRecording();
+  meshcat_->StopRecording();
+  meshcat_->PublishRecording();
 
   if (options.save_mpc_result_as_static_html) {
     std::ofstream data_file;
@@ -198,9 +194,21 @@ TrajectoryOptimizerSolution<double> TrajOptExample::SolveTrajectoryOptimization(
   auto [plant, scene_graph] = AddMultibodyPlant(config, &builder);
   CreatePlantModel(&plant);
   plant.Finalize();
+  const int nq = plant.num_positions();
   const int nv = plant.num_velocities();
-
   auto diagram = builder.Build();
+
+  // Check sizes of things we load from YAML
+  DRAKE_DEMAND(options.q_init.size() == nq);
+  DRAKE_DEMAND(options.v_init.size() == nv);
+  DRAKE_DEMAND(options.q_nom_start.size() == nq);
+  DRAKE_DEMAND(options.q_nom_end.size() == nq);
+  DRAKE_DEMAND(options.q_guess.size() == nq);
+  DRAKE_DEMAND(options.Qq.size() == nq);
+  DRAKE_DEMAND(options.Qv.size() == nv);
+  DRAKE_DEMAND(options.R.size() == nv);
+  DRAKE_DEMAND(options.Qfq.size() == nq);
+  DRAKE_DEMAND(options.Qfv.size() == nv);
 
   // Define the optimization problem
   ProblemDefinition opt_prob;
@@ -339,8 +347,7 @@ void TrajOptExample::PlayBackTrajectory(const std::vector<VectorXd>& q,
   CreatePlantModel(&plant);
   plant.Finalize();
 
-  auto& visualizer =
-      MeshcatVisualizerd::AddToBuilder(&builder, scene_graph, meshcat_);
+  AddDefaultVisualization(&builder, meshcat_);
 
   auto diagram = builder.Build();
   std::unique_ptr<drake::systems::Context<double>> diagram_context =
@@ -352,8 +359,7 @@ void TrajOptExample::PlayBackTrajectory(const std::vector<VectorXd>& q,
   plant.get_actuation_input_port().FixValue(&plant_context, u);
 
   // Set up a recording for later playback in Meshcat
-  MeshcatAnimation* animation = visualizer.StartRecording();
-  animation->set_autoplay(false);
+  meshcat_->StartRecording();
 
   // Step through q, setting the plant positions at each step accordingly
   const int N = q.size();
@@ -366,8 +372,8 @@ void TrajOptExample::PlayBackTrajectory(const std::vector<VectorXd>& q,
     // TODO(vincekurtz): add realtime rate option?
     std::this_thread::sleep_for(std::chrono::duration<double>(time_step));
   }
-  visualizer.StopRecording();
-  visualizer.PublishRecording();
+  meshcat_->StopRecording();
+  meshcat_->PublishRecording();
 }
 
 void TrajOptExample::SetProblemDefinition(const TrajOptExampleParams& options,
@@ -468,9 +474,6 @@ void TrajOptExample::SetSolverParameters(
       options.linesearch_plot_every_iteration;
 
   solver_params->convergence_tolerances = options.tolerances;
-
-  solver_params->proximal_operator = options.proximal_operator;
-  solver_params->rho_proximal = options.rho_proximal;
 
   // Set contact parameters
   solver_params->contact_stiffness = options.contact_stiffness;
