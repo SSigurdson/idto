@@ -129,7 +129,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       </geometry>
       <drake:proximity_properties>
         <drake:rigid_hydroelastic/>
-        <drake:hunt_crossley_dissipation value="0.1"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
         <drake:mu_dynamic value="1.0"/>
       </drake:proximity_properties>
     </collision>
@@ -455,6 +455,12 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <box size="0.0408 0.1130 0.095"/>
       </geometry>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <origin rpy="0 0 0" xyz="-0.0093 0 -0.0475"/>
@@ -475,6 +481,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.0082"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0119"/>
@@ -508,6 +521,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.027"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.065"/>
@@ -541,6 +561,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.0192"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0355"/>
@@ -574,6 +601,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.01335"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0096"/>
@@ -606,6 +640,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <sphere radius="0.012"/>
       </geometry>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0168"/>
@@ -644,6 +685,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.0082"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0119"/>
@@ -677,6 +725,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.027"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.065"/>
@@ -710,6 +765,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.0192"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0355"/>
@@ -743,6 +805,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.01335"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0096"/>
@@ -775,6 +844,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <sphere radius="0.012"/>
       </geometry>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0168"/>
@@ -813,6 +889,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.0082"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0119"/>
@@ -846,6 +929,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.027"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.065"/>
@@ -879,6 +969,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.0192"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0355"/>
@@ -912,6 +1009,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.01335"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0096"/>
@@ -944,6 +1048,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <sphere radius="0.012"/>
       </geometry>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0168"/>
@@ -983,6 +1094,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="-0.0179 0.009 0.0145"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0176"/>
@@ -1016,6 +1134,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.00885"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0119"/>
@@ -1049,6 +1174,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.015"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0.0257"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.038"/>
@@ -1081,6 +1213,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <sphere radius="0.015"/>
       </geometry>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
       <origin rpy="0 0 0" xyz="0 0 0.02115"/>
     </collision>
     <inertial>
@@ -1115,6 +1254,13 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
         <sphere radius="0.012"/>
       </geometry>
       <origin rpy="0 0 0" xyz="0 0 0"/>
+      <drake:proximity_properties>
+        <drake:compliant_hydroelastic/>
+        <drake:hydroelastic_modulus value="1e6"/>
+        <drake:mesh_resolution_hint value="0.015"/>
+        <drake:hunt_crossley_dissipation value="1.0"/>
+        <drake:mu_dynamic value="1.0"/>
+      </drake:proximity_properties>
     </collision>
     <inertial>
       <mass value="0.0168"/>
@@ -1156,6 +1302,10 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
     <drake:member link="algr_rh_rf_px"/>
     <drake:member link="algr_rh_rf_md"/>
     <drake:member link="algr_rh_rf_ds"/>
+    <drake:member link="algr_rh_th_bs"/>
+    <drake:member link="algr_rh_th_ds"/>
+    <drake:member link="algr_rh_th_mp"/>
+    <drake:member link="algr_rh_th_px"/>
     <drake:ignored_collision_filter_group name="all_links"/>
   </drake:collision_filter_group>
 
