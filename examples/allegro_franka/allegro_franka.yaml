@@ -132,3 +132,11 @@ smoothing_factor : 0.001
 # Friction
 friction_coefficient : 5.0  # Coefficient of friction.
 stiction_velocity: 0.05     # Regularization velocity, in m/s.
+
+# MPC parameters
+mpc : true
+mpc_iters : 1
+controller_frequency : 0.1  # very low frequency means open-loop
+sim_time : 10
+sim_time_step : 1e-4
+sim_realtime_rate : 1.0

@@ -33,6 +33,14 @@
             <length>0.25</length>
           </capsule>
         </geometry>
+        <!-- Add compliant hydroelastic contact and friction -->
+        <drake:proximity_properties>
+          <drake:compliant_hydroelastic/>
+          <drake:hydroelastic_modulus>5e7</drake:hydroelastic_modulus>
+          <drake:mesh_resolution_hint>0.015</drake:mesh_resolution_hint>
+          <drake:hunt_crossley_dissipation>0.1</drake:hunt_crossley_dissipation>
+          <drake:mu_dynamic>1.0</drake:mu_dynamic>
+        </drake:proximity_properties>
       </collision>  
     </link>
   </model>
