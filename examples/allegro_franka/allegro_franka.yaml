@@ -137,6 +137,22 @@ stiction_velocity: 0.05     # Regularization velocity, in m/s.
 mpc : true
 mpc_iters : 1
 controller_frequency : 0.1  # very low frequency means open-loop
-sim_time : 10
+sim_time : 2
 sim_time_step : 1e-4
 sim_realtime_rate : 1.0
+
+feed_forward : true
+Kp : [200, 200, 200, 200, 200, 200, 200,  # arm joint angles
+      0.5, 0.5, 0.5, 0.5,                 # index finger
+      0.5, 0.5, 0.5, 0.5,                 # middle finger
+      0.5, 0.5, 0.5, 0.5,                 # ring finger
+      0.5, 0.5, 0.5, 0.5,                 # thumb
+      0, 0, 0, 0,                         # pen orientation
+      0, 0, 0]                            # pen position
+Kd : [20, 20, 20, 20, 20, 20, 20,
+      1e-3, 1e-3, 1e-3, 1e-3,
+      1e-3, 1e-3, 1e-3, 1e-3,
+      1e-3, 1e-3, 1e-3, 1e-3,
+      1e-3, 1e-3, 1e-3, 1e-3,
+      0, 0, 0,
+      0, 0, 0]
