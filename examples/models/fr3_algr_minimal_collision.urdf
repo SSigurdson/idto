@@ -94,6 +94,17 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
 -->
 
 <robot name="fr3_algr" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Define some colors that we'll use elsewhere -->
+  <material name="fr3_white">
+    <color rgba=".9 .9 .9 1"/>
+  </material>
+  <material name="fingertip_white">
+    <color rgba="1 1 1 1"/>
+  </material>
+  <material name="black">
+    <color rgba="0.2 0.2 0.2 1"/>
+  </material>
+
   <!-- TABLE -->
   <joint name="table_joint" type="fixed">
     <parent link="world"/>
@@ -110,6 +121,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <box size="1.3208 1.8288 0.1"/>
       </geometry>
+      <material name="fr3_white"/>
     </visual>
     <collision>
       <geometry>
@@ -135,9 +147,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/fr3/visual/link0.obj"/>
       </geometry>
-      <material name="fr3_white">
-        <color rgba="1. 1. 1. 1."/>
-      </material>
+      <material name="fr3_white"/>
     </visual>
   </link>
   <link name="fr3_link1">
@@ -206,9 +216,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/fr3/visual/link3.obj"/>
       </geometry>
-      <material name="fr3_red">
-        <color rgba="1. 1. 1. 1."/>
-      </material>
+      <material name="fr3_white"/>
     </visual>
   </link>
   <joint name="fr3_joint3" type="revolute">
@@ -372,9 +380,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/algr/connector.obj"/>
       </geometry>
-      <material name="black">
-        <color rgba="0.2 0.2 0.2 1"/>
-      </material>
+      <material name="black"/>
     </visual>
   </link>
   <joint name="connector_algr_joint" type="fixed">
@@ -397,6 +403,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/other/zed2i.obj"/>
       </geometry>
+      <material name="black"/>
     </visual>
   </link>
   <joint name="connector_zed2i_joint" type="fixed">
@@ -436,9 +443,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/algr/base_link.obj"/>
       </geometry>
-      <material name="black">
-        <color rgba="0.2 0.2 0.2 1"/>
-      </material>
+      <material name="black"/>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="-0.009300 0 -0.0475"/>
@@ -458,9 +463,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/algr/link_0.0.obj"/>
       </geometry>
-      <material name="black">
-        <color rgba="0.2 0.2 0.2 1"/>
-      </material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -592,9 +595,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/algr/link_3.0_tip.obj"/>
       </geometry>
-      <material name="white">
-        <color rgba=".9 .9 .9 1"/>
-      </material>
+      <material name="fingertip_white"/>
     </visual>
     <collision>
       <geometry>
@@ -763,9 +764,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/algr/link_3.0_tip.obj"/>
       </geometry>
-      <material name="white">
-        <color rgba=".9 .9 .9 1"/>
-      </material>
+      <material name="fingertip_white"/>
     </visual>
     <collision>
       <geometry>
@@ -934,9 +933,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/algr/link_3.0_tip.obj"/>
       </geometry>
-      <material name="white">
-        <color rgba=".9 .9 .9 1"/>
-      </material>
+      <material name="fingertip_white"/>
     </visual>
     <collision>
       <geometry>
@@ -973,9 +970,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/algr/link_12.0_right.obj"/>
       </geometry>
-      <material name="black">
-        <color rgba=".2 .2 .2 1"/>
-      </material>
+      <material name="black"/>
       <origin rpy="0 0 0" xyz="0 0 0"/>
     </visual>
     <collision>
@@ -1009,9 +1004,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/algr/link_13.0.obj"/>
       </geometry>
-      <material name="black">
-        <color rgba=".2 .2 .2 1"/>
-      </material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -1044,7 +1037,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/algr/link_14.0.obj"/>
       </geometry>
-      <material name="black"></material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -1077,7 +1070,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/algr/link_15.0.obj"/>
       </geometry>
-      <material name="black"></material>
+      <material name="black"/>
     </visual>
     <collision>
       <geometry>
@@ -1110,9 +1103,7 @@ the thumb to axially rotate, and the mcp and ip joints are in order as above.
       <geometry>
         <mesh filename="./meshes/algr/link_15.0_tip.obj"/>
       </geometry>
-      <material name="white">
-        <color rgba=".9 .9 .9 1"/>
-      </material>
+      <material name="fingertip_white"/>
     </visual>
     <collision>
       <geometry>

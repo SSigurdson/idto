@@ -1,8 +1,6 @@
 # File produced by Open Asset Import Library (http://www.assimp.sf.net)
 # (assimp v3.1.187496374)
 
-mtllib allegro.mtl
-
 # 577 vertex positions
 v  -0.00797534 -0.000627673 0.0005
 v  -0.00797534 -0.000627673 -5.10676e-18
