@@ -34,14 +34,14 @@ def define_optimization_problem():
     Specify a nominal trajectory and cost function.
     """
     q_start = np.array([0.0,   # base horizontal position
-                        0.5,   # base vertical position
+                        0.6,   # base vertical position
                         0.0,   # base orientation
                        -0.45,  # right hip
                         1.15,  # right knee
                        -0.45,  # left hip
                         1.15]) # left knee
     q_end = deepcopy(q_start)
-    q_end[0] = 0.3    # move forward
+    q_end[0] = 0.0    # move forward
 
     problem = ProblemDefinition()
     problem.num_steps = 40
@@ -49,9 +49,9 @@ def define_optimization_problem():
     problem.v_init = np.zeros(7)
     problem.Qq = 1.0 * np.eye(7)
     problem.Qv = 0.1 * np.eye(7)
-    problem.R = np.diag([1e3, 1e3, 1e3,   
+    problem.R = np.diag([1e5, 1e5, 1e5,
                          0.1, 0.1, 0.1, 0.1])
-    problem.Qf_q = 10 * np.eye(7)
+    problem.Qf_q = 1.0 * np.eye(7)
     problem.Qf_v = 0.1 * np.eye(7)
 
     q_nom = []   # Can't use list comprehension here because of Eigen conversion
@@ -59,13 +59,13 @@ def define_optimization_problem():
     for i in range(problem.num_steps + 1):
         sigma = i / problem.num_steps
         q_nom.append((1 - sigma) * q_start + sigma * q_end)
-        v_nom.append(np.array([0]))
+        v_nom.append(np.zeros(7))
     problem.q_nom = q_nom
     problem.v_nom = v_nom
 
     return problem
 
-def define_spinner_solver_parameters():
+def define_solver_parameters():
     """
     Create a set of solver parameters, including contact modeling parameters.
     """
@@ -73,8 +73,8 @@ def define_spinner_solver_parameters():
 
     # Trust region solver parameters
     params.max_iterations = 200
-    params.scaling = True
-    params.equality_constraints = True
+    params.scaling = False
+    params.equality_constraints = False
     params.Delta0 = 1e1
     params.Delta_max = 1e5
     params.num_threads = 4
@@ -89,16 +89,6 @@ def define_spinner_solver_parameters():
     params.verbose = True
 
     return params
-
-def define_initial_guess(num_steps):
-    """
-    Create an initial guess for the spinner
-    """
-    q_guess = []
-    for i in range(num_steps + 1):
-        q_guess.append(np.array([0.3, 1.5, 0.0]))
-
-    return q_guess
 
 def visualize_trajectory(q, time_step, model_file, meshcat=None):
     """
@@ -141,31 +131,28 @@ if __name__=="__main__":
     problem = define_optimization_problem()
     time_step = 0.05
 
-    # Visualize the nominal trajectory
-    visualize_trajectory(problem.q_nom, time_step, model_file, meshcat)
+    # Visualize the nominal trajectory (optional)
+    # visualize_trajectory(problem.q_nom, time_step, model_file, meshcat)
 
     # Specify solver parameters, including contact modeling parameters
-    #params = define_solver_parameters()
+    params = define_solver_parameters()
 
-    ## Specify the timestep we'll use to discretize the trajectory
-    #time_step = 0.05
+    # Specify an initial guess
+    q_guess = deepcopy(problem.q_nom)
 
-    ## Specify an initial guess
-    #q_guess = define_initial_guess(problem.num_steps)
+    # Create the optimizer object
+    opt = TrajectoryOptimizer(model_file, problem, params, time_step)
 
-    ## Create the optimizer object
-    #opt = TrajectoryOptimizer(model_file, problem, params, time_step)
+    # Allocate some structs that will hold the solution
+    solution = TrajectoryOptimizerSolution()
+    stats = TrajectoryOptimizerStats()
 
-    ## Allocate some structs that will hold the solution
-    #solution = TrajectoryOptimizerSolution()
-    #stats = TrajectoryOptimizerStats()
+    # Solve the optimization problem
+    opt.Solve(q_guess, solution, stats)
 
-    ## Solve the optimization problem
-    #opt.Solve(q_guess, solution, stats)
-
-    #solve_time = np.sum(stats.iteration_times)
-    #print(f"Solved in {solve_time:.4f} seconds")
+    solve_time = np.sum(stats.iteration_times)
+    print(f"Solved in {solve_time:.4f} seconds")
    
-    ## Play back the solution on meshcat
-    #visualize_trajectory(solution.q, time_step, model_file, meshcat)
+    # Play back the solution on meshcat
+    visualize_trajectory(solution.q, time_step, model_file, meshcat)
 
