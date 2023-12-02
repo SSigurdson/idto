@@ -12,9 +12,9 @@
     <!-- Torso -->
     <link name="Torso">
         <inertial>
-            <origin rpy="0 0 0" xyz="-0.011491 -0.00031059 0.1207"/>
+            <origin rpy="0 0 0" xyz="0 0 0.15"/>
             <mass value="2.3"/>
-            <inertia ixx="0.046119" ixy="6.3449e-05" ixz="-0.0026552" iyy="0.027023" iyz="4.9492e-05" izz="0.028794"/>   
+            <inertia ixx="0.026588" ixy="0" ixz="0" iyy="0.026588" iyz="0" izz="0.026588"/>   
         </inertial>
         <visual>
             <geometry>
@@ -35,7 +35,7 @@
         <inertial>
             <origin rpy="0 0 0" xyz="-1.0844e-09 -0.049128 -0.0051344"/>
             <mass value="0.9"/>
-            <inertia ixx="0.00032298" ixy="1.5939e-11" ixz="-4.6573e-11" iyy="0.00030947" iyz="-1.6116e-06" izz="0.00028441"/>   
+            <inertia ixx="0.00080744" ixy="3.9847e-11" ixz="-1.1643e-10" iyy="0.00077366" iyz="-4.029e-06" izz="0.00071101"/>   
         </inertial>
         <visual>
             <geometry>
@@ -48,7 +48,7 @@
         <inertial>
             <origin rpy="0 0 0" xyz="-1.0844e-09 -0.049128 -0.0051344"/>
             <mass value="0.9"/>
-            <inertia ixx="0.00032298" ixy="1.5939e-11" ixz="-4.6573e-11" iyy="0.00030947" iyz="-1.6116e-06" izz="0.00028441"/>   
+            <inertia ixx="0.00080744" ixy="3.9847e-11" ixz="-1.1643e-10" iyy="0.00077366" iyz="-4.029e-06" izz="0.00071101"/>   
         </inertial>
         <visual>
             <geometry>
@@ -62,8 +62,8 @@
     <link name="HipRight">
         <inertial>
             <origin rpy="0 0 0" xyz="0.04036 0.032494 8.7274e-09"/>
-            <mass value="1.0"/>
-            <inertia ixx="0.00026224" ixy="-0.00011762" ixz="-3.1403e-10" iyy="0.00028925" iyz="-1.9092e-10" izz="0.0004175"/>   
+            <mass value="1"/>
+            <inertia ixx="0.00097125" ixy="-0.00043562" ixz="-1.1631e-09" iyy="0.0010713" iyz="-7.0712e-10" izz="0.0015463"/>   
         </inertial>
         <visual>
             <geometry>
@@ -75,8 +75,8 @@
     <link name="HipLeft">
         <inertial>
             <origin rpy="0 0 0" xyz="0.04036 0.032494 8.7274e-09"/>
-            <mass value="1.0"/>
-            <inertia ixx="0.00026224" ixy="-0.00011762" ixz="-3.1403e-10" iyy="0.00028925" iyz="-1.9092e-10" izz="0.0004175"/>   
+            <mass value="1"/>
+            <inertia ixx="0.00097125" ixy="-0.00043562" ixz="-1.1631e-09" iyy="0.0010713" iyz="-7.0712e-10" izz="0.0015463"/>   
         </inertial>
         <visual>
             <geometry>
@@ -89,10 +89,9 @@
     <!-- Simplified upper leg links -->
     <link name="FemurRight">
         <inertial>
-            <!-- TODO: fix inertia with the tool -->
-            <origin rpy="0 0 0" xyz="0.037565 -7.5935e-07 -0.065064"/>
+            <origin rpy="0 0 0" xyz="0 0 -0.15"/>
             <mass value="0.1"/>
-            <inertia ixx="0.00063531" ixy="1.064e-10" ixz="0.00034112" iyy="0.00082998" iyz="-1.839e-10" izz="0.00024142"/>   
+            <inertia ixx="0.00086013" ixy="0" ixz="0" iyy="0.00086013" iyz="0" izz="1.1109e-05"/>   
         </inertial>
         <visual>
             <origin rpy="0 0 0" xyz="0.0 0.0 -0.15"/>
@@ -104,9 +103,9 @@
     </link>
     <link name="FemurLeft">
         <inertial>
-            <origin rpy="0 0 0" xyz="0.037565 -7.5935e-07 -0.065064"/>
+            <origin rpy="0 0 0" xyz="0 0 -0.15"/>
             <mass value="0.1"/>
-            <inertia ixx="0.00063531" ixy="1.064e-10" ixz="0.00034112" iyy="0.00082998" iyz="-1.839e-10" izz="0.00024142"/>   
+            <inertia ixx="0.00086013" ixy="0" ixz="0" iyy="0.00086013" iyz="0" izz="1.1109e-05"/>   
         </inertial>
         <visual>
             <origin rpy="0 0 0" xyz="0.0 0.0 -0.15"/>
@@ -120,9 +119,9 @@
     <!-- Simplified lower leg links -->
     <link name="TibiaRight">
         <inertial>
-            <origin rpy="0 0 0" xyz="-0.099627 1.975e-08 -0.1193"/>
+            <origin rpy="0 0 0" xyz="0 0 -0.15"/>
             <mass value="0.1"/>
-            <inertia ixx="0.0021144" ixy="-2.7326e-10" ixz="-0.0017323" iyy="0.0035763" iyz="5.0923e-10" izz="0.0014868"/>   
+            <inertia ixx="0.00086013" ixy="0" ixz="0" iyy="0.00086013" iyz="0" izz="1.1109e-05"/>   
         </inertial>
         <visual>
             <origin rpy="0 0 0" xyz="0.0 0.0 -0.15"/>
@@ -134,9 +133,9 @@
     </link>
     <link name="TibiaLeft">
         <inertial>
-            <origin rpy="0 0 0" xyz="-0.099627 1.975e-08 -0.1193"/>
+            <origin rpy="0 0 0" xyz="0 0 -0.15"/>
             <mass value="0.1"/>
-            <inertia ixx="0.0021144" ixy="-2.7326e-10" ixz="-0.0017323" iyy="0.0035763" iyz="5.0923e-10" izz="0.0014868"/>   
+            <inertia ixx="0.00086013" ixy="0" ixz="0" iyy="0.00086013" iyz="0" izz="1.1109e-05"/>   
         </inertial>
         <visual>
             <origin rpy="0 0 0" xyz="0.0 0.0 -0.15"/>
@@ -150,9 +149,9 @@
     <!-- Feet -->
     <link name="FootRight">
         <inertial>
-            <origin rpy="0 0 0" xyz="-0.0001 0.0001 -0.0001"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
             <mass value="0.001"/>
-            <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+            <inertia ixx="1.024e-07" ixy="0" ixz="0" iyy="1.024e-07" iyz="0" izz="1.024e-07"/>
         </inertial>
         <visual>
             <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
@@ -170,9 +169,9 @@
     </link>
     <link name="FootLeft">
         <inertial>
-            <origin rpy="0 0 0" xyz="-0.0001 0.0001 -0.0001"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
             <mass value="0.001"/>
-            <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+            <inertia ixx="1.024e-07" ixy="0" ixz="0" iyy="1.024e-07" iyz="0" izz="1.024e-07"/>
         </inertial>
         <visual>
             <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
