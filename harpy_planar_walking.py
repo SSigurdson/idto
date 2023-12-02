@@ -33,7 +33,9 @@ def define_optimization_problem():
     """
     Specify a nominal trajectory and cost function.
     """
-    velocity_target = 1.0  # Desired forward velocity
+    duration = 4.0  # in seconds
+    dt = 0.05       # time step, in seconds
+    velocity_target = 0.2  # Desired forward velocity (m/s)
 
     q_start = np.array([0.0,   # base horizontal position
                         0.5,   # base vertical position
@@ -43,18 +45,18 @@ def define_optimization_problem():
                        -0.45,  # left hip
                         1.15]) # left knee
     q_end = deepcopy(q_start)
-    q_end[0] = velocity_target
+    q_end[0] = velocity_target * duration
 
     problem = ProblemDefinition()
-    problem.num_steps = 40
+    problem.num_steps = int(duration / dt)
     problem.q_init = q_start
     problem.v_init = np.zeros(7)
-    problem.Qq = np.diag([1, 1, 1, 0, 0, 0, 0])
-    problem.Qv = np.diag([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+    problem.Qq = np.diag([2, 2, 2, 0.1, 0.1, 0.1, 0.1])
+    problem.Qv = np.diag([0.2, 0.2, 0.2, 0.1, 0.1, 0.1, 0.1])
     problem.R = np.diag([1e5, 1e5, 1e5,
                          0.01, 0.01, 0.01, 0.01])
-    problem.Qf_q = 1 * np.eye(7)
-    problem.Qf_v = 0.1 * np.eye(7)
+    problem.Qf_q = 2 * np.eye(7)
+    problem.Qf_v = 0.2 * np.eye(7)
 
     q_nom = []   # Can't use list comprehension here because of Eigen conversion
     v_nom = []
@@ -75,8 +77,8 @@ def define_solver_parameters():
 
     # Trust region solver parameters
     params.max_iterations = 200
-    params.scaling = False
-    params.equality_constraints = False
+    params.scaling = True
+    params.equality_constraints = True
     params.Delta0 = 1e1
     params.Delta_max = 1e5
     params.num_threads = 4
