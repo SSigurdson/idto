@@ -121,7 +121,7 @@
     <link name="TibiaRight">
         <inertial>
             <origin rpy="0 0 0" xyz="-0.099627 1.975e-08 -0.1193"/>
-            <mass value="0.8"/>
+            <mass value="0.1"/>
             <inertia ixx="0.0021144" ixy="-2.7326e-10" ixz="-0.0017323" iyy="0.0035763" iyz="5.0923e-10" izz="0.0014868"/>   
         </inertial>
         <visual>
@@ -135,7 +135,7 @@
     <link name="TibiaLeft">
         <inertial>
             <origin rpy="0 0 0" xyz="-0.099627 1.975e-08 -0.1193"/>
-            <mass value="0.8"/>
+            <mass value="0.1"/>
             <inertia ixx="0.0021144" ixy="-2.7326e-10" ixz="-0.0017323" iyy="0.0035763" iyz="5.0923e-10" izz="0.0014868"/>   
         </inertial>
         <visual>
@@ -145,6 +145,48 @@
             </geometry>
             <material name="black"/>
         </visual>
+    </link>
+
+    <!-- Feet -->
+    <link name="FootRight">
+        <inertial>
+            <origin rpy="0 0 0" xyz="-0.0001 0.0001 -0.0001"/>
+            <mass value="0.001"/>
+            <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+            <geometry>
+                <sphere radius="0.016"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+            <geometry>
+                <sphere radius="0.016"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="FootLeft">
+        <inertial>
+            <origin rpy="0 0 0" xyz="-0.0001 0.0001 -0.0001"/>
+            <mass value="0.001"/>
+            <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+            <geometry>
+                <sphere radius="0.016"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+            <geometry>
+                <sphere radius="0.016"/>
+            </geometry>
+        </collision>
     </link>
 
     <!-- *************************** JOINTS *************************** -->
@@ -212,6 +254,20 @@
         <child link="TibiaLeft"/>
         <axis xyz="0 1 0"/>
         <origin xyz="0.0 -0.035 -0.3" rpy="0.0 0.0 0.0"/>
+    </joint>
+
+    <!-- Feet to Tibia -->
+    <joint name="TibiaRight_FootRight" type="fixed">
+        <parent link="TibiaRight"/>
+        <child link="FootRight"/>
+        <axis xyz="0 1 0"/>
+        <origin xyz="0.0 0.0 -0.3" rpy="0.0 0.0 0.0"/>
+    </joint>
+    <joint name="TibiaLeft_FootLeft" type="fixed">
+        <parent link="TibiaLeft"/>
+        <child link="FootLeft"/>
+        <axis xyz="0 1 0"/>
+        <origin xyz="0.0 0.0 -0.3" rpy="0.0 0.0 0.0"/>
     </joint>
 
     <!-- *************************** ACTUATORS *************************** -->
