@@ -188,6 +188,21 @@
         </collision>
     </link>
 
+    <!-- Ground -->
+    <link name="ground">
+        <inertial>  <!-- dummy inertia: ground is welded to the world frame -->
+            <mass value="1"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+        </inertial>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 -50"/>
+            <geometry>
+                <box size="100 100 100"/>
+            </geometry>
+        </collision>
+    </link>
+
+
     <!-- *************************** JOINTS *************************** -->
     <!-- Torso to world -->
     <joint name="World_Torso" type="planar">
@@ -267,6 +282,13 @@
         <child link="FootLeft"/>
         <axis xyz="0 1 0"/>
         <origin xyz="0.0 0.0 -0.3" rpy="0.0 0.0 0.0"/>
+    </joint>
+
+    <!-- World to ground -->
+    <joint name="world_ground" type="fixed">
+        <parent link="world"/>
+        <child link="ground"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
 
     <!-- *************************** ACTUATORS *************************** -->

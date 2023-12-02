@@ -33,33 +33,35 @@ def define_optimization_problem():
     """
     Specify a nominal trajectory and cost function.
     """
+    velocity_target = 1.0  # Desired forward velocity
+
     q_start = np.array([0.0,   # base horizontal position
-                        0.6,   # base vertical position
+                        0.5,   # base vertical position
                         0.0,   # base orientation
                        -0.45,  # right hip
                         1.15,  # right knee
                        -0.45,  # left hip
                         1.15]) # left knee
     q_end = deepcopy(q_start)
-    q_end[0] = 0.0    # move forward
+    q_end[0] = velocity_target
 
     problem = ProblemDefinition()
     problem.num_steps = 40
     problem.q_init = q_start
     problem.v_init = np.zeros(7)
-    problem.Qq = 1.0 * np.eye(7)
-    problem.Qv = 0.1 * np.eye(7)
+    problem.Qq = np.diag([1, 1, 1, 1, 1, 1, 1])
+    problem.Qv = np.diag([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
     problem.R = np.diag([1e5, 1e5, 1e5,
                          0.1, 0.1, 0.1, 0.1])
-    problem.Qf_q = 1.0 * np.eye(7)
-    problem.Qf_v = 0.1 * np.eye(7)
+    problem.Qf_q = 5 * np.eye(7)
+    problem.Qf_v = 0.5 * np.eye(7)
 
     q_nom = []   # Can't use list comprehension here because of Eigen conversion
     v_nom = []
     for i in range(problem.num_steps + 1):
         sigma = i / problem.num_steps
         q_nom.append((1 - sigma) * q_start + sigma * q_end)
-        v_nom.append(np.zeros(7))
+        v_nom.append(np.array([velocity_target, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]))
     problem.q_nom = q_nom
     problem.v_nom = v_nom
 
@@ -80,7 +82,7 @@ def define_solver_parameters():
     params.num_threads = 4
 
     # Contact modeling parameters
-    params.contact_stiffness = 200
+    params.contact_stiffness = 5e3
     params.dissipation_velocity = 0.1
     params.smoothing_factor = 0.01
     params.friction_coefficient = 0.5
