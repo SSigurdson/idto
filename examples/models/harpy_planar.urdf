@@ -12,7 +12,6 @@
     <!-- Torso -->
     <link name="Torso">
         <inertial>
-            <!-- <origin rpy="0 0 0" xyz="-0.011491 -0.00031059 0.1207"/> -->
             <origin rpy="0 0 0" xyz="-0.011491 -0.00031059 0.1207"/>
             <mass value="2.3"/>
             <inertia ixx="0.046119" ixy="6.3449e-05" ixz="-0.0026552" iyy="0.027023" iyz="4.9492e-05" izz="0.028794"/>   
@@ -24,8 +23,9 @@
             <material name="black"/>
         </visual>
         <collision>
+            <origin rpy="0 0 0" xyz="0 0 0.15"/>
             <geometry>
-                <mesh filename="./meshes/harpy/TorsoPelvis.OBJ"/>
+                <sphere radius="0.17"/>
             </geometry>
         </collision>
     </link>
@@ -43,11 +43,6 @@
             </geometry>
             <material name="black"/>
         </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/Thruster.OBJ"/>
-            </geometry>
-        </collision>
     </link>
     <link name="ThrusterLeft">
         <inertial>
@@ -61,11 +56,6 @@
             </geometry>
             <material name="black"/>
         </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/Thruster.OBJ"/>
-            </geometry>
-        </collision>
     </link>
 
     <!-- Hips -->
@@ -81,11 +71,6 @@
             </geometry>
             <material name="black"/>
         </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/Hip.OBJ"/>
-            </geometry>
-        </collision>
     </link>
     <link name="HipLeft">
         <inertial>
@@ -99,11 +84,6 @@
             </geometry>
             <material name="black"/>
         </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/Hip.OBJ"/>
-            </geometry>
-        </collision>
     </link>
     
     <!-- Femur (I am Quadzilla) -->
