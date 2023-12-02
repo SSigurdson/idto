@@ -85,46 +85,39 @@
             <material name="black"/>
         </visual>
     </link>
-    
-    <!-- Femur (I am Quadzilla) -->
+
+    <!-- Simplified upper leg links -->
     <link name="FemurRight">
         <inertial>
+            <!-- TODO: fix inertia with the tool -->
             <origin rpy="0 0 0" xyz="0.037565 -7.5935e-07 -0.065064"/>
-            <mass value="1.0"/>
+            <mass value="0.1"/>
             <inertia ixx="0.00063531" ixy="1.064e-10" ixz="0.00034112" iyy="0.00082998" iyz="-1.839e-10" izz="0.00024142"/>   
         </inertial>
         <visual>
+            <origin rpy="0 0 0" xyz="0.0 0.0 -0.15"/>
             <geometry>
-                <mesh filename="./meshes/harpy/FemurRight.OBJ"/>
+                <capsule length="0.3" radius="0.015"/>
             </geometry>
             <material name="black"/>
         </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/FemurRight.OBJ"/>
-            </geometry>
-        </collision>
     </link>
     <link name="FemurLeft">
         <inertial>
-            <origin rpy="0 0 0" xyz="0.037565  7.5935e-07 -0.065064"/>
-            <mass value="1.0"/>
+            <origin rpy="0 0 0" xyz="0.037565 -7.5935e-07 -0.065064"/>
+            <mass value="0.1"/>
             <inertia ixx="0.00063531" ixy="1.064e-10" ixz="0.00034112" iyy="0.00082998" iyz="-1.839e-10" izz="0.00024142"/>   
         </inertial>
         <visual>
+            <origin rpy="0 0 0" xyz="0.0 0.0 -0.15"/>
             <geometry>
-                <mesh filename="./meshes/harpy/FemurLeft.OBJ"/>
+                <capsule length="0.3" radius="0.015"/>
             </geometry>
             <material name="black"/>
         </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/FemurLeft.OBJ"/>
-            </geometry>
-        </collision>
     </link>
 
-    <!-- Tibia -->
+    <!-- Simplified lower leg links -->
     <link name="TibiaRight">
         <inertial>
             <origin rpy="0 0 0" xyz="-0.099627 1.975e-08 -0.1193"/>
@@ -132,155 +125,23 @@
             <inertia ixx="0.0021144" ixy="-2.7326e-10" ixz="-0.0017323" iyy="0.0035763" iyz="5.0923e-10" izz="0.0014868"/>   
         </inertial>
         <visual>
+            <origin rpy="0 0 0" xyz="0.0 0.0 -0.15"/>
             <geometry>
-                <mesh filename="./meshes/harpy/Tibia.OBJ"/>
+                <capsule length="0.3" radius="0.015"/>
             </geometry>
             <material name="black"/>
         </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/Tibia.OBJ"/>
-            </geometry>
-        </collision>
     </link>
     <link name="TibiaLeft">
-       <inertial>
+        <inertial>
             <origin rpy="0 0 0" xyz="-0.099627 1.975e-08 -0.1193"/>
             <mass value="0.8"/>
             <inertia ixx="0.0021144" ixy="-2.7326e-10" ixz="-0.0017323" iyy="0.0035763" iyz="5.0923e-10" izz="0.0014868"/>   
         </inertial>
         <visual>
+            <origin rpy="0 0 0" xyz="0.0 0.0 -0.15"/>
             <geometry>
-                <mesh filename="./meshes/harpy/Tibia.OBJ"/>
-            </geometry>
-            <material name="black"/>
-        </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/Tibia.OBJ"/>
-            </geometry>
-        </collision>
-    </link>
-
-    <!-- Tarsus -->
-    <link name="TarsusRight">
-        <inertial>
-            <origin rpy="0 0 0" xyz="0.030104 -1.5782e-06 -0.048636"/>
-            <mass value="0.5"/>
-            <inertia ixx="0.00028423" ixy="6.9762e-10" ixz="0.00016923" iyy="0.00041167" iyz="-8.1315e-09" izz="0.00013797"/>   
-        </inertial>
-        <visual>
-            <geometry>
-                <mesh filename="./meshes/harpy/Tarsus.OBJ"/>
-            </geometry>
-            <material name="black"/>
-        </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/Tarsus.OBJ"/>
-            </geometry>
-        </collision>
-    </link>
-    <link name="TarsusLeft">
-        <inertial>
-            <origin rpy="0 0 0" xyz="0.030104 -1.5782e-06 -0.048636"/>
-            <mass value="0.5"/>
-            <inertia ixx="0.00028423" ixy="6.9762e-10" ixz="0.00016923" iyy="0.00041167" iyz="-8.1315e-09" izz="0.00013797"/>   
-        </inertial>
-        <visual>
-            <geometry>
-                <mesh filename="./meshes/harpy/Tarsus.OBJ"/>
-            </geometry>
-            <material name="black"/>
-        </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/Tarsus.OBJ"/>
-            </geometry>
-        </collision>
-    </link>
-
-    <!-- Feet -->
-    <link name="FootRight">
-        <inertial>
-            <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-            <mass value="0.05"/>
-            <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>   
-        </inertial>
-        <visual>
-            <geometry>
-                <mesh filename="./meshes/harpy/Foot.OBJ"/>
-            </geometry>
-            <material name="black"/>
-        </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/Foot.OBJ"/>
-            </geometry>
-            <drake:proximity_properties>
-                <drake:rigid_hydroelastic/>
-                <drake:mu_dynamic value="0.5"/>
-                <drake:hunt_crossley_dissipation value="1.25"/>
-            </drake:proximity_properties>
-        </collision>
-    </link>
-    <link name="FootLeft">
-        <inertial>
-            <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
-            <mass value="0.05"/>
-            <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>   
-        </inertial>
-        <visual>
-            <geometry>
-                <mesh filename="./meshes/harpy/Foot.OBJ"/>
-            </geometry>
-            <material name="black"/>
-        </visual>
-        <collision>
-            <geometry>
-                <mesh filename="./meshes/harpy/Foot.OBJ"/>
-            </geometry>
-            <drake:proximity_properties>
-                <drake:rigid_hydroelastic/>
-                <drake:mu_dynamic value="0.5"/>
-                <drake:hunt_crossley_dissipation value="1.25"/>
-            </drake:proximity_properties>
-        </collision>
-    </link>
-
-    <!-- Bottom of Foot -->
-    <link name="FootRightBottom"/>
-    <link name="FootLeftBottom"/>
-
-    <!-- Ball -->
-    <link name="BallTarsusRight">
-        <visual>
-            <geometry>
-                <mesh filename="./meshes/harpy/Ball.OBJ"/>
-            </geometry>
-            <material name="black"/>
-        </visual>
-    </link>
-    <link name="BallTarsusLeft">
-        <visual>
-            <geometry>
-                <mesh filename="./meshes/harpy/Ball.OBJ"/>
-            </geometry>
-            <material name="black"/>
-        </visual>
-    </link>
-    <link name="BallFemurRight">
-        <visual>
-            <geometry>
-                <mesh filename="./meshes/harpy/Ball.OBJ"/>
-            </geometry>
-            <material name="black"/>
-        </visual>
-    </link>
-    <link name="BallFemurLeft">
-        <visual>
-            <geometry>
-                <mesh filename="./meshes/harpy/Ball.OBJ"/>
+                <capsule length="0.3" radius="0.015"/>
             </geometry>
             <material name="black"/>
         </visual>
@@ -324,6 +185,7 @@
     </joint>
 
     <!-- Femur to Hips -->
+    <!-- nominal angle: -0.45 rad-->
     <joint name="HipRight_FemurRight" type="continuous">
         <parent link="HipRight"/>
         <child link="FemurRight"/>
@@ -338,102 +200,39 @@
     </joint>
 
     <!-- Tibia to Femur -->
+    <!-- nominal angle: 1.15 rad-->
     <joint name="FemurRight_TibiaRight" type="continuous">
         <parent link="FemurRight"/>
         <child link="TibiaRight"/>
         <axis xyz="0 1 0"/>
-        <origin xyz="0.07513 0.035 -0.13013" rpy="0.0 0.0 0.0"/>
+        <origin xyz="0.0 0.035 -0.3" rpy="0.0 0.0 0.0"/>
     </joint>
     <joint name="FemurLeft_TibiaLeft" type="continuous">
         <parent link="FemurLeft"/>
         <child link="TibiaLeft"/>
         <axis xyz="0 1 0"/>
-        <origin xyz="0.07513 -0.035 -0.13013" rpy="0.0 0.0 0.0"/>
+        <origin xyz="0.0 -0.035 -0.3" rpy="0.0 0.0 0.0"/>
     </joint>
 
-    <!-- Tarsus to Tibia -->
-    <joint name="TibiaRight_TarsusRight" type="continuous">
-        <parent link="TibiaRight"/>
-        <child link="TarsusRight"/>
-        <axis xyz="0 1 0"/>
-        <origin xyz="-0.20512 0.0 -0.24561" rpy="0.0 0.0 0.0"/>
-    </joint>
-    <joint name="TibiaLeft_TarsusLeft" type="continuous">
-        <parent link="TibiaLeft"/>
-        <child link="TarsusLeft"/>
-        <axis xyz="0 1 0"/>
-        <origin xyz="-0.20512 0.0 -0.24561" rpy="0.0 0.0 0.0"/>
-    </joint>
-
-    <!-- Feet to Tarsus -->
-    <joint name="TarsusRight_FootRight" type="continuous">
-        <parent link="TarsusRight"/>
-        <child link="FootRight"/>
-        <axis xyz="0 1 0"/>
-        <origin xyz="0.0645 0.0 -0.11172" rpy="0.0 0.0 0.0"/>
-    </joint>
-    <joint name="TarsusLeft_FootLeft" type="continuous">
-        <parent link="TarsusLeft"/>
-        <child link="FootLeft"/>
-        <axis xyz="0 1 0"/>
-        <origin xyz="0.0645 0.0 -0.11172" rpy="0.0 0.0 0.0"/>
-    </joint>
-
-    <!-- Bottom of Foot to Foot -->
-    <joint name="FootRight_FootRightBottom" type="fixed">
-        <parent link="FootRight"/>
-        <child link="FootRightBottom"/>
-        <origin xyz="0.0 0.0 -0.027" rpy="0.0 0.0 0.0"/>
-    </joint>
-    <joint name="FootLeft_FootLeftBottom" type="fixed">
-        <parent link="FootLeft"/>
-        <child link="FootLeftBottom"/>
-        <origin xyz="0.0 0.0 -0.027" rpy="0.0 0.0 0.0"/>
-    </joint>
-
-    <!-- Ball to Femur-->
-    <joint name="FemurRight_BallFemurRight" type="fixed">
-        <parent link="FemurRight"/>
-        <child link="BallFemurRight"/>
-        <origin xyz="0.04513 0.035 -0.07817" rpy="0.0 0.0 0.0"/>
-    </joint>
-    <joint name="FemurLeft_BallFemurLeft" type="fixed">
-        <parent link="FemurLeft"/>
-        <child link="BallFemurLeft"/>
-        <origin xyz="0.04513 -0.035 -0.07817" rpy="0.0 0.0 0.0"/>
-    </joint>
-
-    <!-- Ball to Tarsus -->
-    <joint name="TarsusRight_BallTarsusRight" type="fixed">
-        <parent link="TarsusRight"/>
-        <child link="BallTarsusRight"/>
-        <origin xyz="-0.03 0.0 0.05196" rpy="0.0 0.0 0.0"/>
-    </joint>
-    <joint name="TarsusLeft_BallTarsusLeft" type="fixed">
-        <parent link="TarsusLeft"/>
-        <child link="BallTarsusLeft"/>
-        <origin xyz="-0.03 0.0 0.05196" rpy="0.0 0.0 0.0"/>
-    </joint>
-    
     <!-- *************************** ACTUATORS *************************** -->
     <transmission name="HipRight_FemurRight">
-        <type>transmission_interface/SimpleTransmission</type>
+        <type>transmission_interface/Transmission</type>
         <joint name="HipRight_FemurRight"/>
         <actuator name="HipRight_FemurRight"/>
     </transmission>
     <transmission name="HipLeft_FemurLeft">
-        <type>transmission_interface/SimpleTransmission</type>
+        <type>transmission_interface/Transmission</type>
         <joint name="HipLeft_FemurLeft"/>
         <actuator name="HipLeft_FemurLeft"/>
     </transmission>
     
     <transmission name="FemurRight_TibiaRight">
-        <type>transmission_interface/SimpleTransmission</type>
+        <type>transmission_interface/Transmission</type>
         <joint name="FemurRight_TibiaRight"/>
         <actuator name="FemurRight_TibiaRight"/>
     </transmission>
     <transmission name="FemurLeft_TibiaLeft">
-        <type>transmission_interface/SimpleTransmission</type>
+        <type>transmission_interface/Transmission</type>
         <joint name="FemurLeft_TibiaLeft"/>
         <actuator name="FemurLeft_TibiaLeft"/>
     </transmission>
