@@ -79,7 +79,7 @@ def define_solver_parameters():
     params.max_iterations = 200
     params.scaling = True
     params.equality_constraints = True
-    params.Delta0 = 1e1
+    params.Delta0 = 1e3
     params.Delta_max = 1e5
     params.num_threads = 4
 
