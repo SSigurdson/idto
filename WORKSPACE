@@ -2,12 +2,13 @@
 
 workspace(name = "idto")
 
-DRAKE_COMMIT = "251bd6982d48343cbd727d0a46d887461b2d13cc"
-DRAKE_CHECKSUM = "72d106c3a61383170f564916cfbae0c25285cc3cb946fca4785beea8c342b8f6"
+# Set the version of Drake that we'll use
+DRAKE_COMMIT = "v1.22.0"
+DRAKE_CHECKSUM = "78cf62c177c41f8415ade172c1e6eb270db619f07c4b043d5148e1f35be8da09"
 
 # Or choose a specific revision of Drake to use.
-# DRAKE_COMMIT = "be4f658487f739ba04ec079de46f9459b719636d"
-# DRAKE_CHECKSUM = "31ec8f87df3ceb6516de3c33a14c5d59ac5c003b4faf93ac526877d2e150b394"
+# DRAKE_COMMIT = "251bd6982d48343cbd727d0a46d887461b2d13cc"
+# DRAKE_CHECKSUM = "72d106c3a61383170f564916cfbae0c25285cc3cb946fca4785beea8c342b8f6"
 #
 # You can also use DRAKE_COMMIT to choose a Drake release; eg:
 # DRAKE_COMMIT = "v0.15.0"
@@ -53,3 +54,18 @@ print("Using IDTO_LOCAL_DRAKE_PATH={}".format(IDTO_LOCAL_DRAKE_PATH)) if IDTO_LO
 # other sites.
 load("@drake//tools/workspace:default.bzl", "add_default_workspace")
 add_default_workspace()
+
+# Load pybind11 for python bindings
+http_archive(
+  name = "pybind11_bazel",
+  strip_prefix = "pybind11_bazel-2.11.1",
+  urls = ["https://github.com/pybind/pybind11_bazel/archive/v2.11.1.zip"],
+)
+http_archive(
+  name = "pybind11",
+  build_file = "@pybind11_bazel//:pybind11.BUILD",
+  strip_prefix = "pybind11-2.11.1",
+  urls = ["https://github.com/pybind/pybind11/archive/v2.11.1.tar.gz"],
+)
+load("@pybind11_bazel//:python_configure.bzl", "python_configure")
+python_configure(name = "local_config_python")

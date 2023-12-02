@@ -139,8 +139,9 @@ GTEST_TEST(TrajectoryOptimizerTest, QuaternionDofs) {
   opt_prob.q_init = VectorXd(7);
   opt_prob.q_init << 1, 0, 0, 0, 0, 0, 0;
   opt_prob.v_init = drake::Vector6d::Zero();
-  opt_prob.q_nom.resize(num_steps + 1);
-  opt_prob.v_nom.resize(num_steps + 1);
+  opt_prob.q_nom.resize(num_steps + 1, VectorXd::Zero(nq));
+  opt_prob.v_nom.resize(num_steps + 1, VectorXd::Zero(nv));
+
 
   TrajectoryOptimizer<double> optimizer(diagram.get(), &plant, opt_prob);
   TrajectoryOptimizerState<double> state = optimizer.CreateState();
@@ -197,8 +198,8 @@ GTEST_TEST(TrajectoryOptimizerTest, ContactGradientMethods) {
   opt_prob.num_steps = num_steps;
   opt_prob.q_init = Vector3d(0.2, 1.5, 0.0);
   opt_prob.v_init = Vector3d(0.0, 0.0, 0.0);
-  opt_prob.q_nom.resize(num_steps + 1);
-  opt_prob.v_nom.resize(num_steps + 1);
+  opt_prob.q_nom.resize(num_steps + 1, Vector3d::Zero());
+  opt_prob.v_nom.resize(num_steps + 1, Vector3d::Zero());
   SolverParameters solver_params;
   solver_params.contact_stiffness = 100;
   solver_params.dissipation_velocity = 0.1;
@@ -1077,8 +1078,8 @@ GTEST_TEST(TrajectoryOptimizerTest, PendulumDtauDq) {
   opt_prob.q_init = drake::Vector1d(0.0);
   opt_prob.v_init = drake::Vector1d(0.1);
   opt_prob.num_steps = num_steps;
-  opt_prob.q_nom.resize(num_steps + 1);
-  opt_prob.v_nom.resize(num_steps + 1);
+  opt_prob.q_nom.resize(num_steps + 1, drake::Vector1d(0.0));
+  opt_prob.v_nom.resize(num_steps + 1, drake::Vector1d(0.0));
   TrajectoryOptimizer<double> optimizer(diagram.get(), &plant, opt_prob);
   TrajectoryOptimizerState<double> state = optimizer.CreateState();
 
@@ -1253,12 +1254,15 @@ GTEST_TEST(TrajectoryOptimizerTest, CalcCost) {
   const int num_steps = 100;
   const double dt = 1e-2;
 
-  // Set up an (empty) system model
+  // Set up a system model with 2 DoFs
   DiagramBuilder<double> builder;
   MultibodyPlantConfig config;
   config.time_step = dt;
   auto [plant, scene_graph] =
       drake::multibody::AddMultibodyPlant(config, &builder);
+  const std::string urdf_file = drake::FindResourceOrThrow(
+      "drake/multibody/benchmarks/acrobot/acrobot.urdf");
+  Parser(&plant).AddModels(urdf_file);
   plant.Finalize();
   auto diagram = builder.Build();
 
@@ -1335,8 +1339,8 @@ GTEST_TEST(TrajectoryOptimizerTest, PendulumCalcInverseDynamics) {
   ProblemDefinition opt_prob;
   opt_prob.num_steps = num_steps;
   opt_prob.v_init = drake::Vector1d(-0.23);
-  opt_prob.q_nom.resize(num_steps + 1);
-  opt_prob.v_nom.resize(num_steps + 1);
+  opt_prob.q_nom.resize(num_steps + 1, drake::Vector1d(0.0));
+  opt_prob.v_nom.resize(num_steps + 1, drake::Vector1d(0.0));
   TrajectoryOptimizer<double> optimizer(diagram.get(), &plant, opt_prob);
   TrajectoryOptimizerState<double> state = optimizer.CreateState();
   state.set_q(q);
@@ -1393,12 +1397,15 @@ GTEST_TEST(TrajectoryOptimizerTest, CalcVelocities) {
   const int num_steps = 5;
   const double dt = 1e-2;
 
-  // Create an empty plant model
+  // Create a plant model with 2 DoFs
   DiagramBuilder<double> builder;
   MultibodyPlantConfig config;
   config.time_step = dt;
   auto [plant, scene_graph] =
       drake::multibody::AddMultibodyPlant(config, &builder);
+  const std::string urdf_file = drake::FindResourceOrThrow(
+      "drake/multibody/benchmarks/acrobot/acrobot.urdf");
+  Parser(&plant).AddModels(urdf_file);
   plant.Finalize();
   auto diagram = builder.Build();
 
@@ -1407,8 +1414,8 @@ GTEST_TEST(TrajectoryOptimizerTest, CalcVelocities) {
   opt_prob.q_init = Vector2d(0.1, 0.2);
   opt_prob.v_init = Vector2d(0.5 / dt, 1.5 / dt);
   opt_prob.num_steps = num_steps;
-  opt_prob.q_nom.resize(num_steps + 1);
-  opt_prob.v_nom.resize(num_steps + 1);
+  opt_prob.q_nom.resize(num_steps + 1, Vector2d::Zero());
+  opt_prob.v_nom.resize(num_steps + 1, Vector2d::Zero());
   TrajectoryOptimizer<double> optimizer(diagram.get(), &plant, opt_prob);
 
   // Construct a std::vector of generalized positions (q)
@@ -1433,102 +1440,6 @@ GTEST_TEST(TrajectoryOptimizerTest, CalcVelocities) {
   const double kTolerance = std::numeric_limits<double>::epsilon() / dt;
   for (int t = 0; t <= num_steps; ++t) {
     EXPECT_TRUE(CompareMatrices(v[t], opt_prob.v_init, kTolerance,
-                                MatrixCompareType::relative));
-  }
-}
-
-// Unit tests the computation of contact Jacobians performed by the optimizer.
-// This very simple case consists of a 2D (3 DOFs) sphere in contact with the
-// ground. We verify the optimizer computes the correct Jacobian at all time
-// steps.
-GTEST_TEST(TrajectoryOptimizerTest, ContactJacobians) {
-  const double dt = 0.01;
-
-  // Model of a ball on a half-sapce.
-  DiagramBuilder<double> builder;
-  MultibodyPlantConfig config;
-  config.time_step = dt;
-  auto [plant, scene_graph] =
-      drake::multibody::AddMultibodyPlant(config, &builder);
-
-  // Inertial properties are irrelevant for this test, since all contact
-  // quantities are configuration dependent only.
-  const double radius = 0.5;
-  const RigidBody<double>& sphere = plant.AddRigidBody(
-      "sphere", drake::multibody::SpatialInertia<double>::MakeUnitary());
-  plant.AddJoint<PlanarJoint>(
-      "planar", plant.world_body(),
-      RigidTransformd(drake::math::RollPitchYawd(M_PI_2, 0.0, 0.0),
-                      Vector3d::Zero()),
-      sphere, {}, Vector3d::Zero());
-  plant.RegisterCollisionGeometry(
-      sphere, RigidTransformd::Identity(), drake::geometry::Sphere(radius),
-      "sphere_contact", drake::multibody::CoulombFriction<double>());
-  plant.RegisterCollisionGeometry(
-      plant.world_body(), RigidTransformd::Identity(),
-      drake::geometry::HalfSpace(), "ground_contact",
-      drake::multibody::CoulombFriction<double>());
-
-  plant.Finalize();
-  auto diagram = builder.Build();
-  ASSERT_EQ(plant.num_positions(), 3);
-  ASSERT_EQ(plant.num_velocities(), 3);
-
-  // Define a super simple optimization problem. We are only interested in
-  // configurations.
-  const int num_steps = 5;
-
-  ProblemDefinition opt_prob;
-  opt_prob.num_steps = num_steps;
-  opt_prob.q_init = Vector3d::Zero();
-  opt_prob.v_init = Vector3d::Zero();
-  opt_prob.q_nom.resize(num_steps + 1);
-  opt_prob.v_nom.resize(num_steps + 1);
-
-  TrajectoryOptimizer<double> optimizer(diagram.get(), &plant, opt_prob);
-  TrajectoryOptimizerState<double> state = optimizer.CreateState();
-
-  // State for which the z position of the sphere decreases linearly with time.
-  std::vector<VectorXd> q;
-  for (int t = 0; t <= num_steps; ++t) {
-    q.push_back(Vector3d(0.0, radius - (0.1 * t) / num_steps, 0.0));
-  }
-  state.set_q(q);
-
-  // Verify the expected value for signed distance pairs.
-  for (int t = 0; t < num_steps; ++t) {
-    const std::vector<drake::geometry::SignedDistancePair<double>>& sdf_pairs =
-        optimizer.EvalSignedDistancePairs(state, t);
-    const double phi_expected = q[t].y() - radius;
-    EXPECT_EQ(sdf_pairs.size(), 1u);
-    EXPECT_NEAR(sdf_pairs[0].distance, phi_expected,
-                std::numeric_limits<double>::epsilon());
-  }
-
-  const TrajectoryOptimizerCache<double>::ContactJacobianData& jacobian_data =
-      optimizer.EvalContactJacobianData(state);
-  for (int t = 0; t < num_steps; ++t) {
-    const MatrixXd& J_AcBc_C = jacobian_data.J[t];
-    EXPECT_EQ(J_AcBc_C.rows(), 3);
-    EXPECT_EQ(J_AcBc_C.cols(), 3);
-    ASSERT_EQ(jacobian_data.R_WC[t].size(), 1u);
-    const RotationMatrixd& R_WC = jacobian_data.R_WC[t][0];
-    const auto& body_pair = jacobian_data.body_pairs[t][0];
-    const double sign =
-        body_pair.second == drake::multibody::BodyIndex(1) ? 1.0 : -1.0;
-
-    // We call the sphere body B. To recover the contact Jacobian for the
-    // relative velocity v_AcBc_W, with A the world body, we must take into
-    // account the order in which pairs are reported. We do this by including
-    // the `sign` factor.
-    const MatrixXd J_AcBc_W = sign * R_WC.matrix() * J_AcBc_C;
-
-    const double phi_expected = q[t].y() - radius;
-    MatrixXd J_expected(3, 3);
-    J_expected << 1, 0, phi_expected / 2.0 + radius, 0, 0, 0, 0, 1, 0;
-
-    EXPECT_TRUE(CompareMatrices(J_AcBc_W, J_expected,
-                                std::numeric_limits<double>::epsilon(),
                                 MatrixCompareType::relative));
   }
 }

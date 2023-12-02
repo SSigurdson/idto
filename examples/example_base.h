@@ -60,8 +60,17 @@ class TrajOptExample {
    *
    * @param options_file YAML file containing cost function definition, solver
    * parameters, etc., with fields as defined in yaml_config.h.
-   */
-  void RunExample(const std::string options_file) const;
+   * @param test Flag for whether this is being run as a unit test. If set to
+   * true, some of the options are overwritten for simplicity:
+   *   - mpc = false
+   *   - max_iters = 10
+   *   - save_solver_stats_csv = false
+   *   - play_target_trajectory = false
+   *   - play_initial_guess = false
+   *   - play_optimal_trajectory = false
+   *   - num_threads = 1; */
+  void RunExample(const std::string options_file,
+                  const bool test = false) const;
 
   /**
    * Solve the optimization problem, as defined by the parameters in the given
@@ -87,9 +96,11 @@ class TrajOptExample {
    * YAML.
    *
    * @param options parameters loaded from yaml
+   * @param plant model of the system that we're optimizing over
    * @param opt_prob the problem definition (cost, initital state, etc)
    */
   void SetProblemDefinition(const TrajOptExampleParams& options,
+                            const MultibodyPlant<double>& plant,
                             ProblemDefinition* opt_prob) const;
 
   /**
@@ -113,6 +124,16 @@ class TrajOptExample {
    */
   void NormalizeQuaternions(const MultibodyPlant<double>& plant,
                             std::vector<VectorXd>* q) const;
+
+  /**
+   * Normalize quaternion in the given vector of generalized positions.
+   *
+   * @param plant model of the system that we're optimizing over
+   * @param q vector of generalized positions, including quaternion DoFs, that
+   * we'll normalize
+   */
+  void NormalizeQuaternions(const MultibodyPlant<double>& plant,
+                            VectorXd* q) const;
 
  protected:
   /**

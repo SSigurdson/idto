@@ -8,28 +8,40 @@
 #include "examples/mpc_controller.h"
 #include "examples/pd_plus_controller.h"
 #include <drake/common/fmt_eigen.h>
-#include <drake/geometry/meshcat_visualizer.h>
 #include <drake/systems/primitives/discrete_time_delay.h>
 #include <drake/visualization/visualization_config_functions.h>
 
 namespace idto {
 namespace examples {
 
-using drake::geometry::MeshcatAnimation;
-using drake::geometry::MeshcatVisualizerd;
 using drake::math::RigidTransformd;
+using drake::multibody::Body;
+using drake::multibody::BodyIndex;
 using drake::systems::DiscreteTimeDelay;
+using drake::visualization::AddDefaultVisualization;
 using Eigen::Matrix4d;
 using mpc::Interpolator;
 using mpc::ModelPredictiveController;
 using pd_plus::PdPlusController;
 
-void TrajOptExample::RunExample(const std::string options_file) const {
+void TrajOptExample::RunExample(const std::string options_file,
+                                const bool test) const {
   // Load parameters from file
   TrajOptExampleParams default_options;
   TrajOptExampleParams options =
       drake::yaml::LoadYamlFile<TrajOptExampleParams>(
           idto::FindIdtoResourceOrThrow(options_file), {}, default_options);
+
+  if (test) {
+    // Use simplified options for a smoke test
+    options.mpc = false;
+    options.max_iters = 10;
+    options.save_solver_stats_csv = false;
+    options.play_target_trajectory = false;
+    options.play_initial_guess = false;
+    options.play_optimal_trajectory = false;
+    options.num_threads = 1;
+  }
 
   CreateCustomMeshcatElements(options);
 
@@ -66,8 +78,7 @@ void TrajOptExample::RunModelPredictiveControl(
   const int nu = plant.num_actuators();
 
   // Connect to the Meshcat visualizer
-  auto& visualizer =
-      MeshcatVisualizerd::AddToBuilder(&builder, scene_graph, meshcat_);
+  AddDefaultVisualization(&builder, meshcat_);
 
   // Create a system model for the controller
   DiagramBuilder<double> ctrl_builder;
@@ -81,8 +92,7 @@ void TrajOptExample::RunModelPredictiveControl(
 
   // Define the optimization problem
   ProblemDefinition opt_prob;
-  SetProblemDefinition(options, &opt_prob);
-  NormalizeQuaternions(ctrl_plant, &opt_prob.q_nom);
+  SetProblemDefinition(options, plant, &opt_prob);
 
   // Set MPC-specific solver parameters
   SolverParameters solver_params;
@@ -159,11 +169,10 @@ void TrajOptExample::RunModelPredictiveControl(
   simulator.Initialize();
 
   // Run the simulation, recording the result for later playback in MeshCat
-  MeshcatAnimation* animation = visualizer.StartRecording();
-  animation->set_autoplay(false);
+  meshcat_->StartRecording();
   simulator.AdvanceTo(options.sim_time);
-  visualizer.StopRecording();
-  visualizer.PublishRecording();
+  meshcat_->StopRecording();
+  meshcat_->PublishRecording();
 
   if (options.save_mpc_result_as_static_html) {
     std::ofstream data_file;
@@ -186,17 +195,25 @@ TrajectoryOptimizerSolution<double> TrajOptExample::SolveTrajectoryOptimization(
   auto [plant, scene_graph] = AddMultibodyPlant(config, &builder);
   CreatePlantModel(&plant);
   plant.Finalize();
+  const int nq = plant.num_positions();
   const int nv = plant.num_velocities();
-
   auto diagram = builder.Build();
+
+  // Check sizes of things we load from YAML
+  DRAKE_DEMAND(options.q_init.size() == nq);
+  DRAKE_DEMAND(options.v_init.size() == nv);
+  DRAKE_DEMAND(options.q_nom_start.size() == nq);
+  DRAKE_DEMAND(options.q_nom_end.size() == nq);
+  DRAKE_DEMAND(options.q_guess.size() == nq);
+  DRAKE_DEMAND(options.Qq.size() == nq);
+  DRAKE_DEMAND(options.Qv.size() == nv);
+  DRAKE_DEMAND(options.R.size() == nv);
+  DRAKE_DEMAND(options.Qfq.size() == nq);
+  DRAKE_DEMAND(options.Qfv.size() == nv);
 
   // Define the optimization problem
   ProblemDefinition opt_prob;
-  SetProblemDefinition(options, &opt_prob);
-
-  // Normalize quaternions in the reference
-  // TODO(vincekurtz): consider moving this to SetProblemDefinition
-  NormalizeQuaternions(plant, &opt_prob.q_nom);
+  SetProblemDefinition(options, plant, &opt_prob);
 
   // Set our solver parameters
   SolverParameters solver_params;
@@ -333,8 +350,7 @@ void TrajOptExample::PlayBackTrajectory(
   CreatePlantModel(&plant);
   plant.Finalize();
 
-  auto& visualizer =
-      MeshcatVisualizerd::AddToBuilder(&builder, scene_graph, meshcat_);
+  AddDefaultVisualization(&builder, meshcat_);
 
   auto diagram = builder.Build();
   std::unique_ptr<drake::systems::Context<double>> diagram_context =
@@ -346,8 +362,7 @@ void TrajOptExample::PlayBackTrajectory(
   plant.get_actuation_input_port().FixValue(&plant_context, u);
 
   // Set up a recording for later playback in Meshcat
-  MeshcatAnimation* animation = visualizer.StartRecording();
-  animation->set_autoplay(false);
+  meshcat_->StartRecording();
 
   // Step through q, setting the plant positions at each step accordingly
   for (int t = 0; t < N; ++t) {
@@ -366,11 +381,12 @@ void TrajOptExample::PlayBackTrajectory(
     // TODO(vincekurtz): add realtime rate option?
     std::this_thread::sleep_for(std::chrono::duration<double>(time_step));
   }
-  visualizer.StopRecording();
-  visualizer.PublishRecording();
+  meshcat_->StopRecording();
+  meshcat_->PublishRecording();
 }
 
 void TrajOptExample::SetProblemDefinition(const TrajOptExampleParams& options,
+                                          const MultibodyPlant<double>& plant,
                                           ProblemDefinition* opt_prob) const {
   opt_prob->num_steps = options.num_steps;
 
@@ -414,6 +430,10 @@ void TrajOptExample::SetProblemDefinition(const TrajOptExampleParams& options,
       opt_prob->v_nom.push_back(opt_prob->v_init);
     }
   }
+
+  // Normalize quaternions in the reference and initial condition
+  NormalizeQuaternions(plant, &opt_prob->q_nom);
+  NormalizeQuaternions(plant, &opt_prob->q_init);
 }
 
 void TrajOptExample::SetSolverParameters(
@@ -468,9 +488,6 @@ void TrajOptExample::SetSolverParameters(
       options.linesearch_plot_every_iteration;
 
   solver_params->convergence_tolerances = options.tolerances;
-
-  solver_params->proximal_operator = options.proximal_operator;
-  solver_params->rho_proximal = options.rho_proximal;
 
   // Set contact parameters
   solver_params->contact_stiffness = options.contact_stiffness;
@@ -539,15 +556,19 @@ void TrajOptExample::SetSolverParameters(
 void TrajOptExample::NormalizeQuaternions(const MultibodyPlant<double>& plant,
                                           std::vector<VectorXd>* q) const {
   const int num_steps = q->size() - 1;
-  for (const drake::multibody::BodyIndex& index :
-       plant.GetFloatingBaseBodies()) {
-    const drake::multibody::Body<double>& body = plant.get_body(index);
-    const int q_start = body.floating_positions_start();
+  for (int t = 0; t <= num_steps; ++t) {
+    NormalizeQuaternions(plant, &q->at(t));
+  }
+}
+
+void TrajOptExample::NormalizeQuaternions(const MultibodyPlant<double>& plant,
+                                          VectorXd* q) const {
+  for (const BodyIndex& index : plant.GetFloatingBaseBodies()) {
+    const Body<double>& body = plant.get_body(index);
     DRAKE_DEMAND(body.has_quaternion_dofs());
-    for (int t = 0; t <= num_steps; ++t) {
-      auto body_qs = q->at(t).segment<4>(q_start);
-      body_qs.normalize();
-    }
+    const int q_start = body.floating_positions_start();
+    auto body_qs = q->segment<4>(q_start);
+    body_qs.normalize();
   }
 }
 
