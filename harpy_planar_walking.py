@@ -49,12 +49,12 @@ def define_optimization_problem():
     problem.num_steps = 40
     problem.q_init = q_start
     problem.v_init = np.zeros(7)
-    problem.Qq = np.diag([1, 1, 1, 1, 1, 1, 1])
+    problem.Qq = np.diag([1, 1, 1, 0, 0, 0, 0])
     problem.Qv = np.diag([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
     problem.R = np.diag([1e5, 1e5, 1e5,
-                         0.1, 0.1, 0.1, 0.1])
-    problem.Qf_q = 5 * np.eye(7)
-    problem.Qf_v = 0.5 * np.eye(7)
+                         0.01, 0.01, 0.01, 0.01])
+    problem.Qf_q = 1 * np.eye(7)
+    problem.Qf_v = 0.1 * np.eye(7)
 
     q_nom = []   # Can't use list comprehension here because of Eigen conversion
     v_nom = []
