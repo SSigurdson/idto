@@ -271,23 +271,23 @@
 
     <!-- *************************** ACTUATORS *************************** -->
     <transmission name="HipRight_FemurRight">
-        <type>transmission_interface/Transmission</type>
+        <type>transmission_interface/SimpleTransmission</type>
         <joint name="HipRight_FemurRight"/>
         <actuator name="HipRight_FemurRight"/>
     </transmission>
     <transmission name="HipLeft_FemurLeft">
-        <type>transmission_interface/Transmission</type>
+        <type>transmission_interface/SimpleTransmission</type>
         <joint name="HipLeft_FemurLeft"/>
         <actuator name="HipLeft_FemurLeft"/>
     </transmission>
     
     <transmission name="FemurRight_TibiaRight">
-        <type>transmission_interface/Transmission</type>
+        <type>transmission_interface/SimpleTransmission</type>
         <joint name="FemurRight_TibiaRight"/>
         <actuator name="FemurRight_TibiaRight"/>
     </transmission>
     <transmission name="FemurLeft_TibiaLeft">
-        <type>transmission_interface/Transmission</type>
+        <type>transmission_interface/SimpleTransmission</type>
         <joint name="FemurLeft_TibiaLeft"/>
         <actuator name="FemurLeft_TibiaLeft"/>
     </transmission>
