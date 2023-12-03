@@ -88,7 +88,7 @@ def define_solver_parameters():
     params.dissipation_velocity = 0.1
     params.smoothing_factor = 0.01
     params.friction_coefficient = 0.5
-    params.stiction_velocity = 0.05
+    params.stiction_velocity = 0.1
 
     params.verbose = True
 
