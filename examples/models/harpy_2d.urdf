@@ -3,6 +3,9 @@
   <material name="black">
     <color rgba=".2 .2 .2 1"/>
   </material>
+  <material name="blue">
+    <color rgba="0 0 1 1"/>
+  </material>
 
   <!-- Torso -->
   <link name="torso">
@@ -97,6 +100,34 @@
     <axis xyz="0 -1 0"/>
     <origin xyz="0 0 -0.15" rpy="0 0 0"/>
   </joint>
+
+  <!-- Box to jump on -->
+  <link name="box">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.5"/>
+      <inertia ixx="0.00083" ixy="0" ixz="0" iyy=".00083" iyz="0" izz="0.00083"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.5 0.5"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.05" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius = "0.35"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="box_joint" type="fixed">
+    <parent link="world"/>
+    <child link="box"/>
+    <axis xyz="0 -1 0"/>
+    <origin xyz="1.2 0.0 0.25" rpy="0 0 0"/>
+  </joint>
   
   <!-- Actuators --> 
   <transmission type="SimpleTransmission" name="hip_trans">
@@ -111,4 +142,3 @@
   </transmission>
 
 </robot>
-
