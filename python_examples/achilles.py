@@ -12,6 +12,9 @@ from pydrake.all import (
     AddMultibodyPlantSceneGraph,
     AddDefaultVisualization,
     Parser,
+    Box,
+    RigidTransform,
+    CoulombFriction,
 )
 import time
 import numpy as np
@@ -62,26 +65,35 @@ if __name__=="__main__":
     builder = DiagramBuilder()
     plant, scene_graph = AddMultibodyPlantSceneGraph(builder, time_step=0.05)
     Parser(plant).AddModels(model_file)
-    plant.mutable_gravity_field().set_gravity_vector([0, 0, 0])
+    plant.RegisterCollisionGeometry(
+        plant.world_body(), 
+        RigidTransform(p=[0, 0, -25]), 
+        Box(50, 50, 50), "ground", 
+        CoulombFriction(0.5, 0.5))
     plant.Finalize()  # TODO: add a ground
     diagram = builder.Build()
 
     nq = plant.num_positions()
     nv = plant.num_velocities()
-    q_default = plant.GetDefaultPositions()
-    q_nom = np.copy(q_default)
-    q_nom[10] = 1.5  # left knee
+    q_nom = np.array([
+        1.0, 0.0, 0.08, 0.0,         # base orientation
+        0.0, 0.0, 0.93,              # base position
+        0.0, 0.0, -0.7, 1.0, -0.45,  # left leg
+        0.0, 0.0, 0.0, -0.9,         # left arm
+        0.0, 0.0, -0.7, 1.0, -0.45,  # left leg
+        0.0, 0.0, 0.0, -0.9,         # right arm
+    ])
 
     # Specify a cost function and target trajectory
     problem = ProblemDefinition()
     problem.num_steps = 20
-    problem.q_init = np.copy(q_default)
+    problem.q_init = np.copy(q_nom)
     problem.v_init = np.zeros(nv)
-    problem.Qq = 1.0 * np.eye(nq)
-    problem.Qv = 0.1 * np.eye(nv)
-    problem.R = 1.0 * np.eye(nv)
-    problem.Qf_q = 1.0 * np.eye(nq)
-    problem.Qf_v = 0.1 * np.eye(nv)
+    problem.Qq = 0.1 * np.eye(nq)
+    problem.Qv = 0.01 * np.eye(nv)
+    problem.R = 0.1 * np.eye(nv)
+    problem.Qf_q = 10.0 * np.eye(nq)
+    problem.Qf_v = 1.0 * np.eye(nv)
 
     problem.q_nom = [np.copy(q_nom) for i in range(problem.num_steps + 1)]
     problem.v_nom = [np.zeros(nv) for i in range(problem.num_steps + 1)]
@@ -94,15 +106,15 @@ if __name__=="__main__":
     params.Delta0 = 1e1
     params.Delta_max = 1e5
     params.num_threads = 4
-    params.contact_stiffness = 200
+    params.contact_stiffness = 5000
     params.dissipation_velocity = 0.1
     params.smoothing_factor = 0.01
-    params.friction_coefficient = 0.8
-    params.stiction_velocity = 0.05
+    params.friction_coefficient = 0.5
+    params.stiction_velocity = 0.1
     params.verbose = True
 
     # Specify an initial guess
-    q_guess = [np.copy(q_default) for i in range(problem.num_steps + 1)]
+    q_guess = [np.copy(q_nom) for i in range(problem.num_steps + 1)]
 
     # Solve the optimization problem
     optimizer = TrajectoryOptimizer(diagram, plant, problem, params)
