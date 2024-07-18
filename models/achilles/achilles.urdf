@@ -7,12 +7,6 @@
       <mass value="8.3"/>
       <inertia ixx="0.172676" ixy="0.0" ixz="0.0" iyy="0.102985" iyz="0.0" izz="0.087971"/>
     </inertial>
-    <collision name="torso_collision">
-      <origin rpy="0 0 0" xyz="0 0 0"/>
-      <geometry>
-        <mesh filename="meshes/torso.obj"/>
-      </geometry>
-    </collision>
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
@@ -140,6 +134,18 @@
         <mesh filename="meshes/ankle_pitch.obj"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.1 0 -0.02"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="-0.03 0 -0.02"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </collision>
   </link>
   <joint name="left_ankle_pitch_joint" type="revolute">
     <axis xyz="0 1 0"/>
@@ -394,6 +400,18 @@
         <mesh filename="meshes/ankle_pitch.obj"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.1 0 -0.02"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin rpy="0 0 0" xyz="-0.03 0 -0.02"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </collision>
   </link>
   <joint name="right_ankle_pitch_joint" type="revolute">
     <axis xyz="0 1 0"/>
