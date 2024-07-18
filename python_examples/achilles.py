@@ -62,13 +62,15 @@ if __name__=="__main__":
     builder = DiagramBuilder()
     plant, scene_graph = AddMultibodyPlantSceneGraph(builder, time_step=0.05)
     Parser(plant).AddModels(model_file)
-    #plant.mutable_gravity_field().set_gravity_vector([0, 0, 0])
+    plant.mutable_gravity_field().set_gravity_vector([0, 0, 0])
     plant.Finalize()  # TODO: add a ground
     diagram = builder.Build()
 
     nq = plant.num_positions()
     nv = plant.num_velocities()
     q_default = plant.GetDefaultPositions()
+    q_nom = np.copy(q_default)
+    q_nom[10] = 1.5  # left knee
 
     # Specify a cost function and target trajectory
     problem = ProblemDefinition()
@@ -81,13 +83,8 @@ if __name__=="__main__":
     problem.Qf_q = 1.0 * np.eye(nq)
     problem.Qf_v = 0.1 * np.eye(nv)
 
-    q_nom = []
-    v_nom = []
-    for i in range(problem.num_steps + 1):
-        q_nom.append(np.copy(q_default))
-        v_nom.append(np.zeros(nv))
-    problem.q_nom = q_nom
-    problem.v_nom = v_nom
+    problem.q_nom = [np.copy(q_nom) for i in range(problem.num_steps + 1)]
+    problem.v_nom = [np.zeros(nv) for i in range(problem.num_steps + 1)]
 
     # Set the solver parameters
     params = SolverParameters()
@@ -105,10 +102,7 @@ if __name__=="__main__":
     params.verbose = True
 
     # Specify an initial guess
-    #q_guess = [np.zeros(nq) for i in range(problem.num_steps + 1)]
-    q_guess = []
-    for i in range(problem.num_steps + 1):
-        q_guess.append(np.copy(q_default))
+    q_guess = [np.copy(q_default) for i in range(problem.num_steps + 1)]
 
     # Solve the optimization problem
     optimizer = TrajectoryOptimizer(diagram, plant, problem, params)
