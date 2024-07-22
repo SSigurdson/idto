@@ -90,14 +90,28 @@ if __name__=="__main__":
     problem.num_steps = 40
     problem.q_init = np.copy(q_nom)
     problem.v_init = np.zeros(nv)
-    problem.Qq = 1.0 * np.eye(nq)
+    problem.Qq = np.diag([
+        10.0, 10.0, 10.0, 10.0,   # base orientation
+        10.0, 10.0, 10.0,         # base position
+        0.1, 0.1, 0.1, 0.1, 0.1,  # left leg
+        0.01, 0.01, 0.01, 0.01,       # left arm
+        0.1, 0.1, 0.1, 0.1, 0.1,  # right leg
+        0.01, 0.01, 0.01, 0.01        # right arm
+    ])
     problem.Qv = 0.01 * np.eye(nv)
-    problem.R = 0.01 * np.eye(nv)
-    problem.Qf_q = 10.0 * np.eye(nq)
-    problem.Qf_v = 1.0 * np.eye(nv)
+    problem.R = 0.01 * np.diag([
+        100.0, 100.0, 100.0, 100.0,    # base orientation
+        100.0, 100.0, 100.0,           # base position
+        0.01, 0.01, 0.01, 0.01, 0.01,  # left leg
+        0.01, 0.01, 0.01, 0.01,        # left arm
+        0.01, 0.01, 0.01, 0.01, 0.01,  # right leg
+        0.01, 0.01, 0.01, 0.01,        # right arm
+    ])
+    problem.Qf_q = 10.0 * np.copy(problem.Qq)
+    problem.Qf_v = 1.0 * np.copy(problem.Qv)
 
     px_sel = np.zeros(nq)
-    px_sel[4] = 0.0
+    px_sel[4] = 0.03
     problem.q_nom = [np.copy(q_nom) + px_sel * i for i in range(problem.num_steps + 1)]
     problem.v_nom = [np.zeros(nv) for i in range(problem.num_steps + 1)]
 
@@ -105,11 +119,11 @@ if __name__=="__main__":
     params = SolverParameters()
     params.max_iterations = 200
     params.scaling = True
-    params.equality_constraints = True
+    params.equality_constraints = False
     params.Delta0 = 1e1
     params.Delta_max = 1e5
-    params.num_threads = 4
-    params.contact_stiffness = 5000
+    params.num_threads = 8
+    params.contact_stiffness = 10_000
     params.dissipation_velocity = 0.1
     params.smoothing_factor = 0.01
     params.friction_coefficient = 0.5
