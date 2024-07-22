@@ -76,7 +76,7 @@ if __name__=="__main__":
     nq = plant.num_positions()
     nv = plant.num_velocities()
 
-    q_nom = np.array([
+    q_stand = np.array([
         1.0000, 0.0000, 0.0000, 0.0000,           # base orientation
         0.0000, 0.0000, 0.9300,                   # base position
         0.0000, 0.0209,-0.5515, 1.0239,-0.4725,   # left leg
@@ -88,14 +88,14 @@ if __name__=="__main__":
     # Specify a cost function and target trajectory
     problem = ProblemDefinition()
     problem.num_steps = 40
-    problem.q_init = np.copy(q_nom)
+    problem.q_init = np.copy(q_stand)
     problem.v_init = np.zeros(nv)
     problem.Qq = np.diag([
         10.0, 10.0, 10.0, 10.0,   # base orientation
         10.0, 10.0, 10.0,         # base position
-        0.1, 0.1, 0.1, 0.1, 0.1,  # left leg
+        0.1, 0.1, 0.1, 0.1, 0.01,  # left leg
         0.01, 0.01, 0.01, 0.01,       # left arm
-        0.1, 0.1, 0.1, 0.1, 0.1,  # right leg
+        0.1, 0.1, 0.1, 0.1, 0.01,  # right leg
         0.01, 0.01, 0.01, 0.01        # right arm
     ])
     problem.Qv = 0.01 * np.eye(nv)
@@ -110,10 +110,14 @@ if __name__=="__main__":
     problem.Qf_q = 10.0 * np.copy(problem.Qq)
     problem.Qf_v = 1.0 * np.copy(problem.Qv)
 
-    px_sel = np.zeros(nq)
-    px_sel[4] = 0.03
-    problem.q_nom = [np.copy(q_nom) + px_sel * i for i in range(problem.num_steps + 1)]
-    problem.v_nom = [np.zeros(nv) for i in range(problem.num_steps + 1)]
+    base_vel = np.array([0.5, 0.0])  # vx, vy
+    q_sel = np.zeros(nq)
+    q_sel[4:6] = base_vel
+    v_nom = np.zeros(nv)
+    v_nom[3:5] = base_vel
+    dt = plant.time_step()
+    problem.q_nom = [np.copy(q_stand) + q_sel * dt * i for i in range(problem.num_steps + 1)]
+    problem.v_nom = [np.copy(v_nom) for i in range(problem.num_steps + 1)]
 
     # Set the solver parameters
     params = SolverParameters()
@@ -122,16 +126,16 @@ if __name__=="__main__":
     params.equality_constraints = False
     params.Delta0 = 1e1
     params.Delta_max = 1e5
-    params.num_threads = 8
+    params.num_threads = 4
     params.contact_stiffness = 10_000
     params.dissipation_velocity = 0.1
     params.smoothing_factor = 0.01
     params.friction_coefficient = 0.5
-    params.stiction_velocity = 0.1
+    params.stiction_velocity = 0.2
     params.verbose = True
 
     # Specify an initial guess
-    q_guess = [np.copy(q_nom) for i in range(problem.num_steps + 1)]
+    q_guess = [np.copy(q_stand) for i in range(problem.num_steps + 1)]
 
     # Solve the optimization problem
     optimizer = TrajectoryOptimizer(diagram, plant, problem, params)
