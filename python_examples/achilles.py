@@ -75,27 +75,30 @@ if __name__=="__main__":
 
     nq = plant.num_positions()
     nv = plant.num_velocities()
+
     q_nom = np.array([
-        1.0, 0.0, 0.08, 0.0,         # base orientation
-        0.0, 0.0, 0.93,              # base position
-        0.0, 0.0, -0.7, 1.0, -0.45,  # left leg
-        0.0, 0.0, 0.0, -0.9,         # left arm
-        0.0, 0.0, -0.7, 1.0, -0.45,  # left leg
-        0.0, 0.0, 0.0, -0.9,         # right arm
+        1.0000, 0.0000, 0.0000, 0.0000,           # base orientation
+        0.0000, 0.0000, 0.9300,                   # base position
+        0.0000, 0.0209,-0.5515, 1.0239,-0.4725,   # left leg
+        0.0000, 0.0000, 0.0000, 0.0000,           # left arm
+        0.0000,-0.0209,-0.3200, 0.9751,-0.6552,   # right leg
+        0.0000, 0.0000, 0.0000, 0.0000,           # right arm
     ])
 
     # Specify a cost function and target trajectory
     problem = ProblemDefinition()
-    problem.num_steps = 20
+    problem.num_steps = 40
     problem.q_init = np.copy(q_nom)
     problem.v_init = np.zeros(nv)
-    problem.Qq = 0.1 * np.eye(nq)
+    problem.Qq = 1.0 * np.eye(nq)
     problem.Qv = 0.01 * np.eye(nv)
-    problem.R = 0.1 * np.eye(nv)
+    problem.R = 0.01 * np.eye(nv)
     problem.Qf_q = 10.0 * np.eye(nq)
     problem.Qf_v = 1.0 * np.eye(nv)
 
-    problem.q_nom = [np.copy(q_nom) for i in range(problem.num_steps + 1)]
+    px_sel = np.zeros(nq)
+    px_sel[4] = 0.0
+    problem.q_nom = [np.copy(q_nom) + px_sel * i for i in range(problem.num_steps + 1)]
     problem.v_nom = [np.zeros(nv) for i in range(problem.num_steps + 1)]
 
     # Set the solver parameters
