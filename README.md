@@ -22,18 +22,19 @@ wget https://github.com/RobotLocomotion/drake/releases/download/v1.30.0/drake-1.
 tar -xvzf drake-1.30.0-jammy.tar.gz
 ```
 
-Install Drake dependencies:
+Install Drake dependencies and gflags:
 
 ```bash
 cd $HOME/drake
 sudo ./share/drake/setup/install_prereqs
+sudo apt-get install libgflags-dev
 ```
 
 Update environment variables:
 
 ```bash
 echo 'export CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:${HOME}/drake' >> ~/.bashrc
-echo 'export PYTHON_PATH=${PYTHONPATH}:${HOME}/drake/lib/python3.10/site-packages' >> ~/.bashrc
+echo 'export PYTHONPATH=${PYTHONPATH}:${HOME}/drake/lib/python3.10/site-packages' >> ~/.bashrc
 source ~/.bashrc
 ```
 
@@ -79,6 +80,10 @@ pip install .
 ```bash
 pytest
 ```
+
+**Note:** The python bindings assume that the `pydrake` version you are using 
+is the one used to build `pyidto`. A separate `pydrake` installation (e.g.,
+from `pip install drake`) may not work.
 
 ## Examples
 
