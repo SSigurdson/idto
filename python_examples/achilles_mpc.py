@@ -72,15 +72,15 @@ def create_optimizer():
 
     # Specify a cost function and target trajectory
     problem = ProblemDefinition()
-    problem.num_steps = 40
+    problem.num_steps = 30
     problem.q_init = np.copy(q_stand)
     problem.v_init = np.zeros(nv)
     problem.Qq = np.diag([
         10.0, 10.0, 10.0, 10.0,   # base orientation
         10.0, 10.0, 10.0,         # base position
-        0.1, 0.1, 0.1, 0.1, 0.01,  # left leg
+        0.1, 0.1, 0.1, 0.1, 0.1,  # left leg
         0.01, 0.01, 0.01, 0.01,       # left arm
-        0.1, 0.1, 0.1, 0.1, 0.01,  # right leg
+        0.1, 0.1, 0.1, 0.1, 0.1,  # right leg
         0.01, 0.01, 0.01, 0.01        # right arm
     ])
     problem.Qv = 0.01 * np.eye(nv)
@@ -161,6 +161,33 @@ class AchillesMPC(ModelPredictiveController):
     def __init__(self, optimizer, q_guess, mpc_rate):
         ModelPredictiveController.__init__(self, optimizer, q_guess, 25, 24, mpc_rate)
 
+    def UpdateNominalTrajectory(self, context):
+        """
+        Shift the reference trajectory based on the current position.
+        """
+        # Get the current state
+        x0 = self.state_input_port.Eval(context)
+        q0 = x0[:self.nq]
+        v0 = x0[self.nq:]
+
+        # Quit if the robot has fallen down
+        base_height = q0[6]
+        assert base_height > 0.0, "Oh no, the robot fell over!"
+
+        # Get the current nominal trajectory
+        prob = self.optimizer.prob()
+        q_nom = prob.q_nom
+        v_nom = prob.v_nom
+
+        # Shift the nominal trajectory
+        dt = self.optimizer.time_step()
+        vx = 0.2
+        for i in range(self.num_steps + 1):
+            q_nom[i][4] = q0[4] + vx * i * dt
+            v_nom[i][4] = vx
+
+        self.optimizer.UpdateNominalTrajectory(q_nom, v_nom)
+
 
 if __name__=="__main__":
     meshcat = StartMeshcat()
@@ -180,8 +207,8 @@ if __name__=="__main__":
         CoulombFriction(0.5, 0.5))
 
     # Add implicit PD controllers (must use kLagged or kSimilar)
-    Kp = 50 * np.ones(plant.num_actuators())
-    Kd = 2 * np.ones(plant.num_actuators())
+    Kp = 500 * np.ones(plant.num_actuators())
+    Kd = 20 * np.ones(plant.num_actuators())
     actuator_indices = [JointActuatorIndex(i) for i in range(plant.num_actuators())]
     for actuator_index, Kp, Kd in zip(actuator_indices, Kp, Kd):
         plant.get_joint_actuator(actuator_index).set_controller_gains(
@@ -234,6 +261,13 @@ if __name__=="__main__":
     plant.SetVelocities(plant_context, v0)
 
     # Simulate and play back on meshcat
+    meshcat.StartRecording()
+    st = time.time()
     simulator = Simulator(diagram, diagram_context)
     simulator.set_target_realtime_rate(1.0)
-    simulator.AdvanceTo(np.inf)
+    simulator.AdvanceTo(5.0)
+    wall_time = time.time() - st
+    print(f"sim time: {simulator.get_context().get_time():.4f}, "
+           f"wall time: {wall_time:.4f}")
+    meshcat.StopRecording()
+    meshcat.PublishRecording()
