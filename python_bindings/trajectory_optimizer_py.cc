@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <vector>
+
 #include "optimizer/trajectory_optimizer.h"
 #include "optimizer/warm_start.h"
 #include <drake/multibody/parsing/parser.h>
@@ -18,14 +20,17 @@ using drake::multibody::MultibodyPlantConfig;
 using drake::multibody::Parser;
 using drake::systems::Diagram;
 using drake::systems::DiagramBuilder;
+using drake::VectorX;
 using Eigen::VectorXd;
 using idto::optimizer::ProblemDefinition;
 using idto::optimizer::SolverParameters;
 using idto::optimizer::TrajectoryOptimizer;
 using idto::optimizer::TrajectoryOptimizerSolution;
 using idto::optimizer::TrajectoryOptimizerStats;
+using idto::optimizer::TrajectoryOptimizerState;
 using idto::optimizer::WarmStart;
 using idto::optimizer::ConvergenceReason;
+
 
 void bind_trajectory_optimizer(py::module_& m) {
   py::module::import("pydrake.multibody.plant");
@@ -49,6 +54,11 @@ void bind_trajectory_optimizer(py::module_& m) {
               TrajectoryOptimizerSolution<double>* solution,
               TrajectoryOptimizerStats<double>* stats) {
              optimizer.SolveFromWarmStart(warm_start, solution, stats);
+           })
+      .def("CreateState", &TrajectoryOptimizer<double>::CreateState)
+      .def("EvalCost",
+           [](TrajectoryOptimizer<double>& optimizer, const TrajectoryOptimizerState<double>& state) {
+             optimizer.EvalCost(state);
            })
       .def("CreateWarmStart", &TrajectoryOptimizer<double>::CreateWarmStart)
       .def("ResetInitialConditions",

@@ -8,6 +8,7 @@ pybind11_add_module(pyidto MODULE pyidto.cc
                     trajectory_optimizer_py.cc
                     trajectory_optimizer_solution_py.cc
                     trajectory_optimizer_stats_py.cc
+                    trajectory_optimizer_state_py.cc
                     find_resource_py.cc)
 target_link_libraries(pyidto PUBLIC 
         trajectory_optimizer drake::drake find_resource)
