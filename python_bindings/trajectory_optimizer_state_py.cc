@@ -10,7 +10,6 @@
 namespace py = pybind11;
 
 using drake::VectorX;
-using idto::optimizer::TrajectoryOptimizer;
 using idto::optimizer::TrajectoryOptimizerState;
 
 
