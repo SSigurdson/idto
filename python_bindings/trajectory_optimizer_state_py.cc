@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "optimizer/trajectory_optimizer.h"
+#include "optimizer/trajectory_optimizer_state.h"
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
