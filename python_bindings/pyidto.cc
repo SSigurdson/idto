@@ -7,6 +7,7 @@ void bind_solver_parameters(py::module_&);
 void bind_trajectory_optimizer(py::module_&);
 void bind_trajectory_optimizer_solution(py::module_&);
 void bind_trajectory_optimizer_stats(py::module_&);
+void bind_trajectory_optimizer_state(py::module_&);
 void bind_find_resource(py::module_&);
 
 PYBIND11_MODULE(pyidto, m) {
