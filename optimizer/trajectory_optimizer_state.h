@@ -205,8 +205,8 @@ template <typename T>
 class TrajectoryOptimizerState {
  public:
   // Not copyable.
-  TrajectoryOptimizerState(const TrajectoryOptimizerState<T>&) = delete;
-  void operator=(const TrajectoryOptimizerState<T>&) = delete;
+  TrajectoryOptimizerState(TrajectoryOptimizerState<T>&) = default;
+  TrajectoryOptimizerState<T>& operator=(TrajectoryOptimizerState<T>&) = default;
 
   // We do allow to move it.
   TrajectoryOptimizerState(TrajectoryOptimizerState<T>&&) = default;
