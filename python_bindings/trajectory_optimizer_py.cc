@@ -55,7 +55,7 @@ void bind_trajectory_optimizer(py::module_& m) {
               TrajectoryOptimizerStats<double>* stats) {
              optimizer.SolveFromWarmStart(warm_start, solution, stats);
            })
-      .def("CreateState", &TrajectoryOptimizer<double>::CreateState)
+      .def("CreateState", &TrajectoryOptimizer<double>::CreateState, py::return_value_policy::move)
       .def("EvalCost",
            [](TrajectoryOptimizer<double>& optimizer, const TrajectoryOptimizerState<double>& state) {
              optimizer.EvalCost(state);
