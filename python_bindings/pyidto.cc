@@ -19,5 +19,6 @@ PYBIND11_MODULE(pyidto, m) {
   bind_trajectory_optimizer(m);
   bind_trajectory_optimizer_solution(m);
   bind_trajectory_optimizer_stats(m);
+  bind_trajectory_optimizer_state(m);
   bind_find_resource(m);
 }
