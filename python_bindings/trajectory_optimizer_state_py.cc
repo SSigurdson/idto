@@ -30,8 +30,5 @@ void bind_trajectory_optimizer_state(py::module_& m) {
 
 void bind_penta_diagonal_matrix(py::module_& m) {
   py::class_<PentaDiagonalMatrix<double>>(m, "PentaDiagonalMatrix")
-      .def("MakeDense", 
-           [](PentaDiagonalMatrix<double>& matrix) {
-             matrix.MakeDense();
-           });
+      .def("MakeDense", &PentaDiagonalMatrix<double>::MakeDense, py::return_value_policy::reference);
 }
