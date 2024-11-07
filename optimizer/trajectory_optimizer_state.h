@@ -36,7 +36,7 @@ using internal::PentaDiagonalMatrix;
  */
 template <typename T>
 struct TrajectoryOptimizerCache {
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryOptimizerCache);
+  //DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryOptimizerCache);
 
   /**
    * Construct a cache for the trajectory optimizer. This is stored inside a
