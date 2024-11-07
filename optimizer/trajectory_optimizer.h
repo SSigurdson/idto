@@ -125,18 +125,8 @@ class TrajectoryOptimizer {
    */
   TrajectoryOptimizerState<T> CreateState() const {
     INSTRUMENT_FUNCTION("Creates state object with caching.");
-    std::cout << "Inside CreateState!";
     return TrajectoryOptimizerState<T>(num_steps(), diagram(), plant(),
                                        num_equality_constraints());
-  }
-
-  TrajectoryOptimizerState<T> CreateStateRef() const {
-    INSTRUMENT_FUNCTION("Creates state object with caching.");
-    std::cout << "Inside CreateState!";
-    TrajectoryOptimizerState<T> traj_opt_state = TrajectoryOptimizerState<T>(num_steps(), diagram(), plant(),
-                                       num_equality_constraints());
-    std::cout << "State created!";
-    return traj_opt_state;
   }
 
   /**

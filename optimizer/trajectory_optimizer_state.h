@@ -36,6 +36,7 @@ using internal::PentaDiagonalMatrix;
  */
 template <typename T>
 struct TrajectoryOptimizerCache {
+  // Copying allowed to make python bindings possible
   //DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryOptimizerCache);
 
   /**
@@ -207,8 +208,8 @@ class TrajectoryOptimizerState {
   // Not copyable.
   // TrajectoryOptimizerState(TrajectoryOptimizerState<T>&) = default;
   // TrajectoryOptimizerState<T> operator=(TrajectoryOptimizerState<T>&) = default;
-  // TrajectoryOptimizerState(const TrajectoryOptimizerState<T>&) = delete;
-  // void operator=(const TrajectoryOptimizerState<T>&) = delete;
+  TrajectoryOptimizerState(const TrajectoryOptimizerState<T>&) = delete;
+  void operator=(const TrajectoryOptimizerState<T>&) = delete;
 
   // We do allow to move it.
   TrajectoryOptimizerState(TrajectoryOptimizerState<T>&&) = default;
