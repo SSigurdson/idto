@@ -128,6 +128,13 @@ class TrajectoryOptimizer {
                                        num_equality_constraints());
   }
 
+//   TrajectoryOptimizerState<T>& CreateStateRef() const {
+//     INSTRUMENT_FUNCTION("Creates state object with caching.");
+//     TrajectoryOptimizerState<T> traj_opt_state = TrajectoryOptimizerState<T>(num_steps(), diagram(), plant(),
+//                                        num_equality_constraints());
+//     return &traj_opt_state;
+//   }
+
   /**
    * Create a warm-start object that contains the initial guess, trust region
    * radius, and other state variables for the optimization problem.
