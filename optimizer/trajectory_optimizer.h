@@ -124,6 +124,7 @@ class TrajectoryOptimizer {
    */
   TrajectoryOptimizerState<T> CreateState() const {
     INSTRUMENT_FUNCTION("Creates state object with caching.");
+    std::cout << "Inside CreateState!"
     return TrajectoryOptimizerState<T>(num_steps(), diagram(), plant(),
                                        num_equality_constraints());
   }

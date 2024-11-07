@@ -7,6 +7,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#define PYBIND11_DETAILED_ERROR_MESSAGES
+
 namespace py = pybind11;
 
 using drake::VectorX;
