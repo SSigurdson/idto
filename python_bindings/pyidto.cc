@@ -8,6 +8,7 @@ void bind_trajectory_optimizer(py::module_&);
 void bind_trajectory_optimizer_solution(py::module_&);
 void bind_trajectory_optimizer_stats(py::module_&);
 void bind_trajectory_optimizer_state(py::module_&);
+void bind_penta_diagonal_matrix(py::module_&);
 void bind_find_resource(py::module_&);
 
 PYBIND11_MODULE(pyidto, m) {
@@ -21,5 +22,6 @@ PYBIND11_MODULE(pyidto, m) {
   bind_trajectory_optimizer_solution(m);
   bind_trajectory_optimizer_stats(m);
   bind_trajectory_optimizer_state(m);
+  bind_penta_diagonal_matrix(m);
   bind_find_resource(m);
 }
