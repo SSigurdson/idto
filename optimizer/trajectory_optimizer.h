@@ -6,6 +6,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include "optimizer/inverse_dynamics_partials.h"
 #include "optimizer/penta_diagonal_matrix.h"
@@ -124,7 +125,7 @@ class TrajectoryOptimizer {
    */
   TrajectoryOptimizerState<T> CreateState() const {
     INSTRUMENT_FUNCTION("Creates state object with caching.");
-    std::cout << "Inside CreateState!"
+    std::cout << "Inside CreateState!";
     return TrajectoryOptimizerState<T>(num_steps(), diagram(), plant(),
                                        num_equality_constraints());
   }
