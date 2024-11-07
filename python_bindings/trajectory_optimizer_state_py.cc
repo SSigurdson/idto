@@ -13,6 +13,7 @@
 namespace py = pybind11;
 
 using drake::VectorX;
+using drake::MatrixX;
 using idto::optimizer::TrajectoryOptimizerState;
 using idto::optimizer::PentaDiagonalMatrix;
 
@@ -29,5 +30,8 @@ void bind_trajectory_optimizer_state(py::module_& m) {
 
 void bind_penta_diagonal_matrix(py::module_& m) {
   py::class_<PentaDiagonalMatrix<double>>(m, "PentaDiagonalMatrix")
-      .def("MakeDense", &PentaDiagonalMatrix<double>::MakeDense);
+      .def("MakeDense", 
+           [](PentaDiagonalMatrix<double>& matrix) {
+             matrix.MakeDense();
+           });
 }

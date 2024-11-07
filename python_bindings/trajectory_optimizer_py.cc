@@ -24,6 +24,7 @@ using drake::multibody::Parser;
 using drake::systems::Diagram;
 using drake::systems::DiagramBuilder;
 using drake::VectorX;
+using drake::MatrixX;
 using Eigen::VectorXd;
 using idto::optimizer::ProblemDefinition;
 using idto::optimizer::SolverParameters;
