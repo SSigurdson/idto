@@ -68,6 +68,10 @@ void bind_trajectory_optimizer(py::module_& m) {
            [](TrajectoryOptimizer<double>& optimizer, const TrajectoryOptimizerState<double>& state) {
              return optimizer.EvalHessian(state);
            }, py::return_value_policy::reference)
+      .def("EvalEqualityConstraintViolations",
+           [](TrajectoryOptimizer<double>& optimizer, const TrajectoryOptimizerState<double>& state) {
+             return optimizer.EvalEqualityConstraintViolations(state);
+           }, py::return_value_policy::reference)
       .def("CreateWarmStart", &TrajectoryOptimizer<double>::CreateWarmStart)
       .def("ResetInitialConditions",
            &TrajectoryOptimizer<double>::ResetInitialConditions)
