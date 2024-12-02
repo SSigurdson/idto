@@ -2031,8 +2031,8 @@ T TrajectoryOptimizer<T>::CalcTrustRatio(
     return 0.5;
   }
 
-  std::cout << actual_reduction << std::endl;
-  std::cout << predicted_reduction << std::endl;
+  //std::cout << actual_reduction << std::endl;
+  //std::cout << predicted_reduction << std::endl;
 
   return actual_reduction / predicted_reduction;
 }
@@ -2349,7 +2349,7 @@ SolverFlag TrajectoryOptimizer<double>::SolveWithLinesearch(
     }
 
     // Print additional debuging information
-    if (params_.print_debug_data) {
+    if (true) {//(params_.print_debug_data) {
       double condition_number = 1 / H.MakeDense().ldlt().rcond();
       double L_prime = g.transpose() * dq;
       std::cout << "Condition #: " << condition_number << std::endl;
