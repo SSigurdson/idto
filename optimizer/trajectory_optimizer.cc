@@ -2031,8 +2031,8 @@ T TrajectoryOptimizer<T>::CalcTrustRatio(
     return 0.5;
   }
 
-  std::cout << actual_reduction << std::endl;
-  std::cout << predicted_reduction << std::endl;
+  //std::cout << actual_reduction << std::endl;
+  //std::cout << predicted_reduction << std::endl;
 
   return actual_reduction / predicted_reduction;
 }
