@@ -162,6 +162,8 @@ T TrajectoryOptimizer<T>::CalcCost(
     cost += T(tau[t].transpose() * prob_.R * tau[t]);
   }
 
+  std::cout << "tau norm: " << tau.norm() << std::endl;
+
   // Scale running cost by dt (so the optimization problem we're solving doesn't
   // change so dramatically when we change the time step).
   cost *= time_step();
