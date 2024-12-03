@@ -2031,8 +2031,14 @@ T TrajectoryOptimizer<T>::CalcTrustRatio(
     return 0.5;
   }
 
-  //std::cout << actual_reduction << std::endl;
-  //std::cout << predicted_reduction << std::endl;
+  if (params_.print_debug_data) {
+      std::cout << actual_reduction << std::endl;
+      std::cout << predicted_reduction << std::endl;
+      std::cout << gradient_term << std::endl;
+      std::cout << hessian_term << std::endl;
+      std::cout << merit_k << std::endl;
+      std::cout << merit_kp << std::endl;
+  }
 
   return actual_reduction / predicted_reduction;
 }
