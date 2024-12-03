@@ -2038,6 +2038,7 @@ T TrajectoryOptimizer<T>::CalcTrustRatio(
       std::cout << hessian_term << std::endl;
       std::cout << merit_k << std::endl;
       std::cout << merit_kp << std::endl;
+      std::cout << dq.norm() << std::endl;
   }
 
   return actual_reduction / predicted_reduction;
