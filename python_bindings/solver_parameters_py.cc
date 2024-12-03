@@ -13,6 +13,7 @@ void bind_solver_parameters(py::module_& m) {
       .def_readwrite("normalize_quaternions",
                      &SolverParameters::normalize_quaternions)
       .def_readwrite("verbose", &SolverParameters::verbose)
+      .def_readwrite("print_debug_data", &SolverParameters::print_debug_data)
       .def_readwrite("contact_stiffness", &SolverParameters::contact_stiffness)
       .def_readwrite("dissipation_velocity",
                      &SolverParameters::dissipation_velocity)
