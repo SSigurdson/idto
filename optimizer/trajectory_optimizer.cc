@@ -154,15 +154,17 @@ T TrajectoryOptimizer<T>::CalcCost(
   VectorX<T>& v_err = workspace->v_size_tmp1;
 
   // Running cost
+  T temp = 0.000000000;
   for (int t = 0; t < num_steps(); ++t) {
     q_err = q[t] - prob_.q_nom[t];
     v_err = v[t] - prob_.v_nom[t];
     cost += T(q_err.transpose() * prob_.Qq * q_err);
     cost += T(v_err.transpose() * prob_.Qv * v_err);
     cost += T(tau[t].transpose() * prob_.R * tau[t]);
+    temp += T(tau[t].transpose() * prob_.R * tau[t]);
   }
 
-  std::cout << "tau norm: " << tau.norm() << std::endl;
+  std::cout << "tau contribution: " << temp << std::endl;
 
   // Scale running cost by dt (so the optimization problem we're solving doesn't
   // change so dramatically when we change the time step).
