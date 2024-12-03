@@ -14,6 +14,7 @@ void bind_solver_parameters(py::module_& m) {
                      &SolverParameters::normalize_quaternions)
       .def_readwrite("verbose", &SolverParameters::verbose)
       .def_readwrite("print_debug_data", &SolverParameters::print_debug_data)
+      .def_readwrite("exact_hessian", &SolverParameters::exact_hessian)
       .def_readwrite("contact_stiffness", &SolverParameters::contact_stiffness)
       .def_readwrite("dissipation_velocity",
                      &SolverParameters::dissipation_velocity)
