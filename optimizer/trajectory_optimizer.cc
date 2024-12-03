@@ -176,6 +176,8 @@ T TrajectoryOptimizer<T>::CalcCost(
   cost += T(q_err.transpose() * prob_.Qf_q * q_err);
   cost += T(v_err.transpose() * prob_.Qf_v * v_err);
 
+  std::cout << "Cost: " << cost << std::endl;
+
   return cost;
 }
 
@@ -1430,6 +1432,7 @@ const T TrajectoryOptimizer<T>::EvalMeritFunction(
   if (!params_.equality_constraints) return EvalCost(state);
 
   if (!state.cache().merit_up_to_date) {
+    std::cout << "Calculating merit function" << std::endl;
     CalcMeritFunction(state, &state.mutable_cache().merit);
     state.mutable_cache().merit_up_to_date = true;
   }
