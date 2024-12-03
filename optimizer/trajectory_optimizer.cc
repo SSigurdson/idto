@@ -1989,7 +1989,7 @@ T TrajectoryOptimizer<T>::CalcTrustRatio(
     const TrajectoryOptimizerState<T>& state, const VectorX<T>& dq,
     TrajectoryOptimizerState<T>* scratch_state) const {
   // Quantities at the current iteration (k)
-  const T merit_k = EvalMeritFunction(state);
+  const T merit_k = CalcCost(state);//EvalMeritFunction(state);
   const VectorX<T>& g_tilde_k = EvalMeritFunctionGradient(state);
   const PentaDiagonalMatrix<T>& H_k = EvalScaledHessian(state);
 
