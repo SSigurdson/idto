@@ -532,7 +532,9 @@ void TrajectoryOptimizer<T>::CalcInverseDynamicsPartialsFiniteDiff(
 
       // tau[t-1] = ID(q[t], v[t], a[t-1])
       plant().SetPositions(&context_t, q_eps_t);
+      std::cout << "HERE 1" << std::endl;
       plant().SetVelocities(&context_t, v_eps_t);
+      std::cout << "HERE 2" << std::endl;
       CalcInverseDynamicsSingleTimeStep(context_t, a_eps_tm, &workspace,
                                         &tau_eps_tm);
       dtau_dqp[t - 1].col(i) = (tau_eps_tm - tau[t - 1]) / dq_i;
