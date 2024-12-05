@@ -77,8 +77,8 @@ void bind_trajectory_optimizer(py::module_& m) {
            &TrajectoryOptimizer<double>::ResetInitialConditions)
       .def("UpdateNominalTrajectory",
            &TrajectoryOptimizer<double>::UpdateNominalTrajectory)
-      .def("params", &TrajectoryOptimizer<double>::params)
-      .def("prob", &TrajectoryOptimizer<double>::prob);
+      .def("params", &TrajectoryOptimizer<double>::params_)
+      .def("prob", &TrajectoryOptimizer<double>::prob_);
   py::class_<WarmStart>(m, "WarmStart")
       // Warm start is not default constructible: it should be created
       // in python using the TrajectoryOptimizer.CreateWarmStart method.
