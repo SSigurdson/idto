@@ -438,7 +438,6 @@ void TrajectoryOptimizer<T>::CalcInverseDynamicsPartialsFiniteDiff(
   using std::max;
   // Check that id_partials has been allocated correctly.
   DRAKE_DEMAND(id_partials->size() == num_steps());
-  std::cout << "IN INVERSE DYNAMICS PARTIALS" << std::endl;
 
   // Get the trajectory data
   const std::vector<VectorX<T>>& q = state.q();
@@ -533,9 +532,7 @@ void TrajectoryOptimizer<T>::CalcInverseDynamicsPartialsFiniteDiff(
 
       // tau[t-1] = ID(q[t], v[t], a[t-1])
       plant().SetPositions(&context_t, q_eps_t);
-      std::cout << "HERE 1" << std::endl;
       plant().SetVelocities(&context_t, v_eps_t);
-      std::cout << "HERE 2" << std::endl;
       CalcInverseDynamicsSingleTimeStep(context_t, a_eps_tm, &workspace,
                                         &tau_eps_tm);
       dtau_dqp[t - 1].col(i) = (tau_eps_tm - tau[t - 1]) / dq_i;
@@ -578,8 +575,6 @@ void TrajectoryOptimizer<T>::CalcInverseDynamicsPartialsCentralDiff(
     InverseDynamicsPartials<T>* id_partials) const {
   // Check that id_partials has been allocated correctly.
   DRAKE_DEMAND(id_partials->size() == num_steps());
-
-  std::cout << "IN CENTRAL DIFF ID PARTIALS" << std::endl;
 
   // Get references to the partials that we'll be setting
   std::vector<MatrixX<T>>& dtau_dqm = id_partials->dtau_dqm;
