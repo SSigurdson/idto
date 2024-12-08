@@ -126,14 +126,12 @@ TrajectoryOptimizer<T>::TrajectoryOptimizer(const Diagram<T>* diagram,
 template <typename T>
 const T TrajectoryOptimizer<T>::EvalCost(
     const TrajectoryOptimizerState<T>& state) const {
+  const SolverParameters& params = params();
   if (!state.cache().cost_up_to_date) {
     state.mutable_cache().cost = CalcCost(state);
     state.mutable_cache().cost_up_to_date = true;
-  } else {
-    auto params = params();
-    if (params.print_debug_data){
-      std::cout << "State cache cost in EvalCost: "<< state.cache().cost <<std::endl;
-    }
+  } elif (params.print_debug_data){
+    std::cout << "State cache cost in EvalCost: "<< state.cache().cost <<std::endl;
   }
   return state.cache().cost;
 }
@@ -169,7 +167,7 @@ T TrajectoryOptimizer<T>::CalcCost(
     temp += T(tau[t].transpose() * prob_.R * tau[t]);
   }
 
-  auto params = params();
+  const SolverParameters& params = params();
   if (params.print_debug_data){
     std::cout << "tau contribution in CalcCost: " << temp*time_step() << std::endl;
   }
