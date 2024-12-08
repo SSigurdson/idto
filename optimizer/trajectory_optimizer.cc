@@ -130,7 +130,7 @@ const T TrajectoryOptimizer<T>::EvalCost(
     state.mutable_cache().cost = CalcCost(state);
     state.mutable_cache().cost_up_to_date = true;
   } else {
-    auto params = params()
+    auto params = params();
     if (params.print_debug_data){
       std::cout << "State cache cost in EvalCost: "<< state.cache().cost <<std::endl;
     }
@@ -169,7 +169,7 @@ T TrajectoryOptimizer<T>::CalcCost(
     temp += T(tau[t].transpose() * prob_.R * tau[t]);
   }
 
-  auto params = params()
+  auto params = params();
   if (params.print_debug_data){
     std::cout << "tau contribution in CalcCost: " << temp*time_step() << std::endl;
   }
