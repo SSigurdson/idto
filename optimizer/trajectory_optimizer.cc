@@ -182,7 +182,7 @@ T TrajectoryOptimizer<T>::CalcCost(
   cost += T(q_err.transpose() * prob_.Qf_q * q_err);
   cost += T(v_err.transpose() * prob_.Qf_v * v_err);
 
-  if (params.print_debug_data) {
+  if (params().print_debug_data) {
     std::cout << "Cost in CalcCost: " << cost << std::endl;
   }
 
