@@ -129,8 +129,12 @@ const T TrajectoryOptimizer<T>::EvalCost(
   if (!state.cache().cost_up_to_date) {
     state.mutable_cache().cost = CalcCost(state);
     state.mutable_cache().cost_up_to_date = true;
+  } else {
+    auto params = params()
+    if (params.print_debug_data){
+      std::cout << "State cache cost in EvalCost: "<< state.cache().cost <<std::endl;
+    }
   }
-  //std::cout << "State cache cost: "<< state.cache().cost <<std::endl;
   return state.cache().cost;
 }
 
@@ -165,7 +169,10 @@ T TrajectoryOptimizer<T>::CalcCost(
     temp += T(tau[t].transpose() * prob_.R * tau[t]);
   }
 
-  //std::cout << "tau contribution: " << temp*time_step() << std::endl;
+  auto params = params()
+  if (params.print_debug_data){
+    std::cout << "tau contribution in CalcCost: " << temp*time_step() << std::endl;
+  }
 
   // Scale running cost by dt (so the optimization problem we're solving doesn't
   // change so dramatically when we change the time step).
@@ -177,7 +184,9 @@ T TrajectoryOptimizer<T>::CalcCost(
   cost += T(q_err.transpose() * prob_.Qf_q * q_err);
   cost += T(v_err.transpose() * prob_.Qf_v * v_err);
 
-  //std::cout << "Cost: " << cost << std::endl;
+  if (params.print_debug_data) {
+    std::cout << "Cost in CalcCost: " << cost << std::endl;
+  }
 
   return cost;
 }
@@ -1433,7 +1442,7 @@ const T TrajectoryOptimizer<T>::EvalMeritFunction(
   if (!params_.equality_constraints) return EvalCost(state);
 
   if (!state.cache().merit_up_to_date) {
-    std::cout << "Calculating merit function" << std::endl;
+    //std::cout << "Calculating merit function" << std::endl;
     CalcMeritFunction(state, &state.mutable_cache().merit);
     state.mutable_cache().merit_up_to_date = true;
   }
