@@ -393,6 +393,10 @@ void TrajectoryOptimizer<T>::CalcContactForceContribution(
     const SpatialForce<T> F_AC_W(drake::Vector3<T>::Zero(), -f_BC_W);
     const SpatialForce<T> F_AAo_W = F_AC_W.Shift(-p_AC_W);
 
+    if (params().print_debug_data){
+      std::cout << geometryA_id << " " << geometryB_id << " " << f_BC_W.norm() << std::endl;
+    }
+
     // Add the forces into the given MultibodyForces
     forces->mutable_body_forces()[bodyA.mobod_index()] += F_AAo_W;
     forces->mutable_body_forces()[bodyB.mobod_index()] += F_BBo_W;
