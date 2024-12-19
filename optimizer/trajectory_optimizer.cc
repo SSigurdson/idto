@@ -292,8 +292,8 @@ void TrajectoryOptimizer<T>::CalcContactForceContribution(
   const std::vector<SignedDistancePair<T>>& signed_distance_pairs =
       query_object.ComputeSignedDistancePairwiseClosestPoints(threshold);
 
-  const GeometryId geo_max_A;
-  const GeometryId geo_max_B;
+  GeometryId geo_max_A;
+  GeometryId geo_max_B;
   T max_force_norm = 0.0;
   int pair_count = 0;
   for (const SignedDistancePair<T>& pair : signed_distance_pairs) {
