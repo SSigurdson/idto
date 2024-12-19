@@ -402,7 +402,7 @@ void TrajectoryOptimizer<T>::CalcContactForceContribution(
         pair_count = pair_count + 1;
         geo_max_A = geometryA_id;
         geo_max_B = geometryB_id;
-        max_force_norm = f_BC_W;
+        max_force_norm = f_BC_W.norm();
       }
       
     }
