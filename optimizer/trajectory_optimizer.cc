@@ -292,6 +292,10 @@ void TrajectoryOptimizer<T>::CalcContactForceContribution(
   const std::vector<SignedDistancePair<T>>& signed_distance_pairs =
       query_object.ComputeSignedDistancePairwiseClosestPoints(threshold);
 
+  const GeometryId geo_max_A;
+  const GeometryId geo_max_B;
+  T max_force_norm = 0.0;
+  int pair_count = 0;
   for (const SignedDistancePair<T>& pair : signed_distance_pairs) {
     // Normal outwards from A.
     const drake::Vector3<T> nhat = -pair.nhat_BA_W;
@@ -394,12 +398,22 @@ void TrajectoryOptimizer<T>::CalcContactForceContribution(
     const SpatialForce<T> F_AAo_W = F_AC_W.Shift(-p_AC_W);
 
     if (params().print_debug_data){
-      std::cout << geometryA_id << " " << geometryB_id << " " << f_BC_W.norm() << std::endl;
+      if (f_BC_W.norm() > max_force_norm){
+        pair_count = pair_count + 1;
+        geo_max_A = geometryA_id;
+        geo_max_B = geometryB_id;
+        max_force_norm = f_BC_W;
+      }
+      
     }
 
     // Add the forces into the given MultibodyForces
     forces->mutable_body_forces()[bodyA.mobod_index()] += F_AAo_W;
     forces->mutable_body_forces()[bodyB.mobod_index()] += F_BBo_W;
+  }
+  if (params().print_debug_data){
+    std::cout << "Num pairs: " << pair_count << std::endl;
+    std::cout << geo_max_A << " " << geo_max_B << " " << max_force_norm << std::endl;
   }
 }
 
