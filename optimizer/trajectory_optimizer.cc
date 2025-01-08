@@ -398,9 +398,9 @@ void TrajectoryOptimizer<T>::CalcContactForceContribution(
     const SpatialForce<T> F_AAo_W = F_AC_W.Shift(-p_AC_W);
 
     if (params().print_debug_data){
-      std::cout << geometryA_id << " " << geometryB_id << " " << f_BC_W.norm() << std::endl;
+      //std::cout << geometryA_id << " " << geometryB_id << " " << f_BC_W.norm() << std::endl;
+      pair_count = pair_count + 1;
       if (f_BC_W.norm() > max_force_norm){
-        pair_count = pair_count + 1;
         geo_max_A = geometryA_id;
         geo_max_B = geometryB_id;
         max_force_norm = f_BC_W.norm();
