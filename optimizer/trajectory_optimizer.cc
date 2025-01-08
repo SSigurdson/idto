@@ -294,8 +294,8 @@ void TrajectoryOptimizer<T>::CalcContactForceContribution(
 
   GeometryId geo_max_A;
   GeometryId geo_max_B;
-  T max_force_norm = 0.0;
-  int pair_count = 0;
+  // T max_force_norm = 0.0;
+  // int pair_count = 0;
   for (const SignedDistancePair<T>& pair : signed_distance_pairs) {
     // Normal outwards from A.
     const drake::Vector3<T> nhat = -pair.nhat_BA_W;
