@@ -165,7 +165,7 @@ T TrajectoryOptimizer<T>::CalcCost(
     cost += T(v_err.transpose() * prob_.Qv * v_err);
     cost += T(tau[t].transpose() * prob_.R * tau[t]);
     temp += T(tau[t].transpose() * prob_.R * tau[t]);
-    std::cout << "tau contribution at timestep " << t << ": " << T(tau[t].transpose() * prob_.R * tau[t]) << std::endl;
+    std::cout << "tau contribution at timestep " << t << ": " << T(tau[t].transpose() * prob_.R * tau[t])*time_step() << std::endl;
   }
 
   //const SolverParameters& params = params();
@@ -295,8 +295,9 @@ void TrajectoryOptimizer<T>::CalcContactForceContribution(
 
   GeometryId geo_max_A;
   GeometryId geo_max_B;
-  // T max_force_norm = 0.0;
-  // int pair_count = 0;
+  T max_force_norm = 0.0;
+  T total_force_norm = 0.0;
+  int pair_count = 0;
   for (const SignedDistancePair<T>& pair : signed_distance_pairs) {
     // Normal outwards from A.
     const drake::Vector3<T> nhat = -pair.nhat_BA_W;
@@ -398,26 +399,27 @@ void TrajectoryOptimizer<T>::CalcContactForceContribution(
     const SpatialForce<T> F_AC_W(drake::Vector3<T>::Zero(), -f_BC_W);
     const SpatialForce<T> F_AAo_W = F_AC_W.Shift(-p_AC_W);
 
-    // if (params().print_debug_data){
-    //   //std::cout << geometryA_id << " " << geometryB_id << " " << f_BC_W.norm() << std::endl;
-    //   pair_count = pair_count + 1;
-    //   if (f_BC_W.norm() > max_force_norm){
-    //     geo_max_A = geometryA_id;
-    //     geo_max_B = geometryB_id;
-    //     max_force_norm = f_BC_W.norm();
-    //   }
+    if (params().print_debug_data){
+      //std::cout << geometryA_id << " " << geometryB_id << " " << f_BC_W.norm() << std::endl;
+      pair_count = pair_count + 1;
+      total_force_norm += f_BC_W.norm()
+      if (f_BC_W.norm() > max_force_norm){
+        geo_max_A = geometryA_id;
+        geo_max_B = geometryB_id;
+        max_force_norm = f_BC_W.norm();
+      }
       
-    // }
+    }
 
     // Add the forces into the given MultibodyForces
     forces->mutable_body_forces()[bodyA.mobod_index()] += F_AAo_W;
     forces->mutable_body_forces()[bodyB.mobod_index()] += F_BBo_W;
   }
-  // if (params().print_debug_data){
-  //   std::cout << "Num pairs: " << pair_count << std::endl;
-  //   std::cout << geo_max_A << " " << geo_max_B << " " << max_force_norm << std::endl;
-  //   std::cout << " " << std::endl;
-  // }
+  if (params().print_debug_data){
+    //std::cout << "Num pairs: " << pair_count << std::endl;
+    std::cout << geo_max_A << " " << geo_max_B << " " << max_force_norm << " " << total_force_norm << std::endl;
+    //std::cout << " " << std::endl;
+  }
 }
 
 template <typename T>
