@@ -165,6 +165,7 @@ T TrajectoryOptimizer<T>::CalcCost(
     cost += T(v_err.transpose() * prob_.Qv * v_err);
     cost += T(tau[t].transpose() * prob_.R * tau[t]);
     temp += T(tau[t].transpose() * prob_.R * tau[t]);
+    std::cout << "tau contribution at timestep " << t << ": " << T(tau[t].transpose() * prob_.R * tau[t]) << std::endl;
   }
 
   //const SolverParameters& params = params();
