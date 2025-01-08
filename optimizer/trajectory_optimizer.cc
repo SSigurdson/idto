@@ -402,7 +402,7 @@ void TrajectoryOptimizer<T>::CalcContactForceContribution(
     if (params().print_debug_data){
       //std::cout << geometryA_id << " " << geometryB_id << " " << f_BC_W.norm() << std::endl;
       pair_count = pair_count + 1;
-      total_force_norm += f_BC_W.norm()
+      total_force_norm += f_BC_W.norm();
       if (f_BC_W.norm() > max_force_norm){
         geo_max_A = geometryA_id;
         geo_max_B = geometryB_id;
