@@ -158,6 +158,8 @@ T TrajectoryOptimizer<T>::CalcCost(
 
   // Running cost
   T temp = 0.000000000;
+  T temp_Q_cost = 0.000000000;
+  T temp_V_cost = 0.000000000;
   for (int t = 0; t < num_steps(); ++t) {
     q_err = q[t] - prob_.q_nom[t];
     v_err = v[t] - prob_.v_nom[t];
@@ -165,6 +167,8 @@ T TrajectoryOptimizer<T>::CalcCost(
     cost += T(v_err.transpose() * prob_.Qv * v_err);
     cost += T(tau[t].transpose() * prob_.R * tau[t]);
     temp += T(tau[t].transpose() * prob_.R * tau[t]);
+    temp_Q_cost += T(q_err.transpose() * prob_.Qq * q_err);
+    temp_V_cost += T(v_err.transpose() * prob_.Qv * v_err);
     if (params().print_debug_data){
       std::cout << "tau contribution at timestep " << t << ": " << T(tau[t].transpose() * prob_.R * tau[t])*time_step() << std::endl;
     }
@@ -184,6 +188,14 @@ T TrajectoryOptimizer<T>::CalcCost(
   v_err = v[num_steps()] - prob_.v_nom[num_steps()];
   cost += T(q_err.transpose() * prob_.Qf_q * q_err);
   cost += T(v_err.transpose() * prob_.Qf_v * v_err);
+
+  if (true) {
+    std::cout << "tau contribution in CalcCost: " << temp*time_step() << std::endl;
+    std::cout << "Q contribution in CalcCost: " << temp_Q_cost*time_step() << std::endl;
+    std::cout << "V contribution in CalcCost: " << temp_V_cost*time_step() << std::endl;
+    std::cout << "Qf contribution in CalcCost: " << T(q_err.transpose() * prob_.Qf_q * q_err)*time_step() << std::endl;
+    std::cout << "Vf contribution in CalcCost: " << T(v_err.transpose() * prob_.Qf_v * v_err)*time_step() << std::endl;
+  }
 
   if (params().print_debug_data) {
     std::cout << "Cost in CalcCost: " << cost << std::endl;
