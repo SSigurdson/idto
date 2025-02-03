@@ -189,7 +189,7 @@ T TrajectoryOptimizer<T>::CalcCost(
   cost += T(q_err.transpose() * prob_.Qf_q * q_err);
   cost += T(v_err.transpose() * prob_.Qf_v * v_err);
 
-  if (true) {
+  if (false) {
     std::cout << "tau contribution in CalcCost: " << temp*time_step() << std::endl;
     std::cout << "Q contribution in CalcCost: " << temp_Q_cost*time_step() << std::endl;
     std::cout << "V contribution in CalcCost: " << temp_V_cost*time_step() << std::endl;
