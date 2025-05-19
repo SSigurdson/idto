@@ -68,6 +68,14 @@ void bind_trajectory_optimizer(py::module_& m) {
            [](TrajectoryOptimizer<double>& optimizer, const TrajectoryOptimizerState<double>& state) {
              return optimizer.EvalHessian(state);
            }, py::return_value_policy::reference)
+      .def("EvalTau",
+           [](TrajectoryOptimizer<double>& optimizer, const TrajectoryOptimizerState<double>& state) {
+             return optimizer.EvalTau(state);
+           }, py::return_value_policy::reference)
+      .def("EvalV",
+           [](TrajectoryOptimizer<double>& optimizer, const TrajectoryOptimizerState<double>& state) {
+             return optimizer.EvalV(state);
+           }, py::return_value_policy::reference)
       .def("EvalEqualityConstraintJacobian",
            [](TrajectoryOptimizer<double>& optimizer, const TrajectoryOptimizerState<double>& state) {
              return optimizer.EvalEqualityConstraintJacobian(state);
