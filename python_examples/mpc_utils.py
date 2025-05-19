@@ -268,7 +268,7 @@ class OpenLoopController(LeafSystem):
     def ResetOpenLoopTrajectory(self, new_q):
 
         # Store the solution in the abstract state
-        self.state.get_mutable_abstract_state(0).SetFrom(
+        self.stored_trajectory.SetFrom(
             Value(self.StoreOptimizerSolution(new_q, 0.0)))
         
         return EventStatus.Succeeded()
