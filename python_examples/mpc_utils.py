@@ -265,10 +265,9 @@ class OpenLoopController(LeafSystem):
         self.trajectory_output_port = self.DeclareStateOutputPort(
             "optimal_trajectory", self.stored_trajectory)
         
-    def ResetOpenLoopTrajectory(self, new_q):
+    def ResetOpenLoopTrajectory(self, context, new_q):
 
         # Store the solution in the abstract state
-        context = self.AllocateContext()
         context.get_mutable_abstract_state(self.stored_trajectory).SetFrom(
             Value(self.StoreOptimizerSolution(new_q, 0.0)))
         
