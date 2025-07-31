@@ -5,6 +5,7 @@
 ##
 
 import numpy as np
+import time
 from pydrake.all import (
     LeafSystem,
     BasicVector,
@@ -285,23 +286,29 @@ class OpenLoopController(LeafSystem):
         Returns:
             A StoredTrajectory object containing an interpolation of the solution.
         """
+        t1 = time.time()
         # Run inverse dynamics
-        init_state = self.optimizer.CreateState()
-        init_state.set_q(q_guess)
+        #init_state = self.optimizer.CreateState()
+        t12 = time.time()
+        #init_state.set_q(q_guess)
         q_state = q_guess
-        v_state = self.optimizer.EvalV(init_state)
-        tau_state = self.optimizer.EvalTau(init_state)
+        t13 = time.time()
+        #v_state = self.optimizer.EvalV(init_state)
+        #tau_state = self.optimizer.EvalTau(init_state)
+        t2 = time.time()
 
         # Create numpy arrays with knot points for iterpolation of the solution
         # along the actuated DoFs
         time_steps = np.linspace(
             0, self.time_step * self.num_steps, self.num_steps + 1)
         q_knots = np.array(q_state).T
-        v_knots = np.array(v_state).T
-        tau_knots = tau_state
-        tau_knots.append(tau_state[-1])  # Repeat the last control input
-        tau_knots = np.array(tau_knots).T
+        v_knots = np.gradient(q_knots, self.optimizer.time_step(), axis=1)#np.array(v_state).T
+        #tau_knots = tau_state
+        #tau_knots.append(tau_state[-1])  # Repeat the last control input
+        v_knots_norm = np.linalg.norm(v_knots, axis=0)
+        tau_knots = np.zeros(v_knots.shape)#np.array(tau_knots).T
 
+        t3 = time.time()
         # Create the StoredTrajectory object
         trajectory = StoredTrajectory()
         trajectory.start_time = start_time
@@ -311,6 +318,14 @@ class OpenLoopController(LeafSystem):
             time_steps, v_knots)
         trajectory.tau = PiecewisePolynomial.CubicWithContinuousSecondDerivatives(
             time_steps, tau_knots)
+        t4 = time.time()
+
+        #print("Part1: ", (t2-t1)/(t4-t1)) #82%
+        #print("Part1_1: ", (t12 - t1)/(t2-t1)) #98% of Part1
+        #print("Part1_2: ", (t13 - t12)/(t2-t1))
+        #print("Part1_3: ", (t2 - t13)/(t2-t1))
+        #print("Part2: ", (t3-t2)/(t4-t1)) #3%
+        #print("Part3: ", (t4-t3)/(t4-t1)) #15%
 
         return trajectory
 
