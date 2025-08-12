@@ -26,6 +26,7 @@ class StoredTrajectory:
     q = None           # A PiecewisePolynomial representing the generalized coordinates
     v = None           # A PiecewisePolynomial representing the generalized velocities
     tau = None         # A PiecewisePolynomial representing the generalized forces
+    dt = None
 
 
 class Interpolator(LeafSystem):
@@ -77,6 +78,14 @@ class Interpolator(LeafSystem):
         """
         trajectory = self.EvalAbstractInput(context, 0).get_value()
         t = context.get_time() - trajectory.start_time
+        #ind = np.min((int(np.floor(t/trajectory.dt)), trajectory.q.shape[1]-1))
+        #if ind == trajectory.q.shape[1]-1:
+        #    q = self.Bq @ trajectory.q[:, ind]
+        #    v = self.Bv @ trajectory.v[:, ind]
+        #else:
+        #    lamb = (t-trajectory.dt*ind)/trajectory.dt
+        #    q = self.Bq @ ((1-lamb)*trajectory.q[:, ind] + lamb*trajectory.q[:, ind+1]) 
+        #    v = self.Bv @ ((1-lamb)*trajectory.v[:, ind] + lamb*trajectory.v[:, ind+1]) 
         q = self.Bq @ trajectory.q.value(t)
         v = self.Bv @ trajectory.v.value(t)
         output.SetFromVector(np.concatenate((q, v)))
@@ -86,6 +95,13 @@ class Interpolator(LeafSystem):
         Send the control input at the current time.
         """
         trajectory = self.EvalAbstractInput(context, 0).get_value()
+        #t = (context.get_time() - trajectory.start_time)
+        #ind = np.min((int(np.floor(t/trajectory.dt)), trajectory.q.shape[1]-1))
+        #if ind == trajectory.tau.shape[1]:
+        #    u = self.Bv @ trajectory.tau[:, ind]
+        #else:
+        #    lamb = (t-trajectory.dt*ind)/trajectory.dt
+        #    u = self.Bv @ ((1-lamb)*trajectory.tau[:, ind] + lamb*trajectory.tau[:, ind+1]) 
         u = self.Bv @ trajectory.tau.value(context.get_time() -
                                            trajectory.start_time)
         output.SetFromVector(u)
@@ -312,6 +328,10 @@ class OpenLoopController(LeafSystem):
         # Create the StoredTrajectory object
         trajectory = StoredTrajectory()
         trajectory.start_time = start_time
+        #trajectory.q = q_knots
+        #trajectory.v = v_knots
+        #trajectory.tau = tau_knots
+        #trajectory.dt = self.time_step
         trajectory.q = PiecewisePolynomial.CubicWithContinuousSecondDerivatives(
             time_steps, q_knots)
         trajectory.v = PiecewisePolynomial.CubicWithContinuousSecondDerivatives(

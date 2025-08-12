@@ -15,6 +15,7 @@
 #include "utils/profiler.h"
 #include <drake/geometry/scene_graph_inspector.h>
 #include <drake/multibody/math/spatial_algebra.h>
+#include <drake/multibody/plant/externally_applied_spatial_force.h>
 #include <drake/systems/framework/diagram.h>
 
 #define PRINT_VAR(a) std::cout << #a ": " << a << std::endl;
@@ -33,6 +34,7 @@ using drake::multibody::Frame;
 using drake::multibody::Joint;
 using drake::multibody::JointIndex;
 using drake::multibody::MultibodyPlant;
+using drake::multibody::MultibodyForces;
 using drake::multibody::SpatialForce;
 using drake::multibody::SpatialVelocity;
 using drake::systems::System;
@@ -229,6 +231,55 @@ void TrajectoryOptimizer<T>::CalcAccelerations(
     a->at(t) = (v[t + 1] - v[t]) / time_step();
   }
 }
+
+// Next TODO: Try building this, then run the function for simple problems like planar pusher balls in python bindings.
+// If that works, then wrap this in the same way as the finite differences to get A, B calcs
+template <typename T>
+const VectorX<T>& TrajectoryOptimizer<T>::CalcDynamics(
+    const VectorX<T>& q, const VectorX<T>& v, const VectorX<T>& u) const {
+      // Create pointer for f_ext
+      MultibodyForces<T> f_ext = MultibodyForces(plant()); // TODO: What type should this be?
+
+      // Appropriately set the context
+      auto context = dynamics_context();
+      plant().SetPositions(context, q);
+      plant().SetVelocities(context, v);
+
+      plant().CalcForceElementsContribution(*context, &f_ext); // TODO: Is f_ext passed correctly now by reference?
+
+      // Add in contact force contribution to f_ext
+      if (plant().geometry_source_is_registered()) {
+        // Only compute contact forces if the plant is connected to a scene graph
+        // TODO(vincekurtz): perform this check earlier, and maybe print some
+        // warnings to stdout if we're not connected (we do want to be able to run
+        // problems w/o contact sometimes)
+        CalcContactForceContribution(*context, &f_ext);
+      }
+
+      // Set the external spatial force input port on the plant
+      const std::vector<SpatialForce<T>>& body_forces = f_ext.body_forces();
+      std::vector<drake::multibody::ExternallyAppliedSpatialForce<T>> external_forces(body_forces.size());
+      int count = 0;
+      for (SpatialForce body_force : body_forces) {
+        external_forces[count].F_Bq_W = body_force;
+        external_forces[count].body_index = BodyIndex(count);
+        count++;
+      }
+
+      const drake::systems::InputPort<T>& applied_spatial_force_input_port = plant().get_applied_spatial_force_input_port();
+      // Use port.FixValue(context, value)?
+      applied_spatial_force_input_port.FixValue(context, external_forces);
+
+      // Set the actuation input port on the plant
+      const drake::systems::InputPort<T>& actuation_input_port = plant().get_actuation_input_port();
+      actuation_input_port.FixValue(context, u); // TODO: Is the input u correct type/format?
+      actuation_input_port.Eval(*context); // This is CRITICAL for updating the cache prior to output Eval
+
+      // Query the generalized accleration output port on the plant
+      // TODO: Really these ports should just be set on optimizer creation, and accessed now as needed
+      const drake::systems::OutputPort<T>& generalized_acceleration_output_port = plant().get_generalized_acceleration_output_port();
+      return generalized_acceleration_output_port.Eval(*context); // TODO: Is q_ddot the correct type/format?
+    }
 
 template <typename T>
 void TrajectoryOptimizer<T>::CalcInverseDynamics(

@@ -98,6 +98,14 @@ class TrajectoryOptimizer {
   const MultibodyPlant<T>& plant() const { return *plant_; }
 
   /**
+   * Convienience function to get a pointer to the context that
+   * we are using for dynamics calculations.
+   *
+   * @return Context<T>&, the context used for dynamics calculations.
+   */
+  Context<T>* dynamics_context() const { return context_; }
+
+  /**
    * Convienience function to get a const reference to the system diagram that
    * contains the multibody plant that we are optimizing over.
    *
@@ -453,6 +461,10 @@ class TrajectoryOptimizer {
   const Context<T>& EvalPlantContext(const TrajectoryOptimizerState<T>& state,
                                      int t) const;
 
+  const VectorX<T>& CalcDynamics(const VectorX<T>& q, 
+                    const VectorX<T>& v, 
+                    const VectorX<T>& u) const;
+
   /**
    * Overwrite the initial conditions x0 = [q0, v0] stored in the solver
    * parameters. This is particularly useful when re-solving the optimization
@@ -671,6 +683,8 @@ class TrajectoryOptimizer {
   void CalcInverseDynamics(const TrajectoryOptimizerState<T>& state,
                            const std::vector<VectorX<T>>& a,
                            std::vector<VectorX<T>>* tau) const;
+
+
 
   /**
    * Helper function for computing the inverse dynamics

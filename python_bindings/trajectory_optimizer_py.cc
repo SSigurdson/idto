@@ -84,6 +84,13 @@ void bind_trajectory_optimizer(py::module_& m) {
            [](TrajectoryOptimizer<double>& optimizer, const TrajectoryOptimizerState<double>& state) {
              return optimizer.EvalEqualityConstraintViolations(state);
            }, py::return_value_policy::reference)
+      .def("CalcDynamics",
+           [](TrajectoryOptimizer<double>& optimizer,
+              const VectorX<double>& q,
+              const VectorX<double>& v,
+              const VectorX<double>& u) {
+             return optimizer.CalcDynamics(q, v, u);
+           }, py::return_value_policy::reference)
       .def("CreateWarmStart", &TrajectoryOptimizer<double>::CreateWarmStart)
       .def("ResetInitialConditions",
            &TrajectoryOptimizer<double>::ResetInitialConditions)
