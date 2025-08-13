@@ -10,6 +10,7 @@ void bind_trajectory_optimizer_stats(py::module_&);
 void bind_trajectory_optimizer_state(py::module_&);
 void bind_penta_diagonal_matrix(py::module_&);
 void bind_find_resource(py::module_&);
+void bind_linearized_dynamics_results(py::module_&);
 
 PYBIND11_MODULE(pyidto, m) {
   m.doc() = "Inverse Dynamics Trajectory Optimization (IDTO) python bindings.";
@@ -24,4 +25,5 @@ PYBIND11_MODULE(pyidto, m) {
   bind_trajectory_optimizer_state(m);
   bind_penta_diagonal_matrix(m);
   bind_find_resource(m);
+  bind_linearized_dynamics_results(m);
 }

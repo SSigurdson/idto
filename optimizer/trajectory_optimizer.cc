@@ -53,6 +53,9 @@ TrajectoryOptimizer<T>::TrajectoryOptimizer(const Diagram<T>* diagram,
   owned_context_ = diagram->CreateDefaultContext();
   context_ = &diagram->GetMutableSubsystemContext(*plant, owned_context_.get());
 
+  //A_lin_ = MatrixX<T>::Zero(plant_->num_velocities(), plant_->num_velocities());
+  //B_lin_ = MatrixX<T>::Zero(plant_->num_velocities(), plant_->num_actuators());
+
   // Define joint damping coefficients.
   joint_damping_ = VectorX<T>::Zero(plant_->num_velocities());
   for (JointIndex j(0); j < plant_->num_joints(); ++j) {
@@ -280,6 +283,38 @@ const VectorX<T>& TrajectoryOptimizer<T>::CalcDynamics(
       const drake::systems::OutputPort<T>& generalized_acceleration_output_port = plant().get_generalized_acceleration_output_port();
       return generalized_acceleration_output_port.Eval(*context); // TODO: Is q_ddot the correct type/format?
     }
+
+template <typename T>
+void TrajectoryOptimizer<T>::CalcLinearizedDynamics(
+    const VectorX<T>& q, const VectorX<T>& v, const VectorX<T>& u, LinearizedDynamicsResults<T>* linearized_dynamics_results) const {
+
+  VectorX<T> qp = q;
+  VectorX<T> up = u;
+  const double EPSILON = sqrt(std::numeric_limits<double>::epsilon());
+  const double div_eps = 1/EPSILON;
+  const VectorX<T> q_ddot_nom = CalcDynamics(q, v, u);
+
+  linearized_dynamics_results->A_lin.assign(plant().num_velocities(), VectorX<T>(plant().num_velocities()));
+  linearized_dynamics_results->B_lin.assign(plant().num_actuators(), VectorX<T>(plant().num_velocities()));
+
+  for (int i = 0; i < plant().num_velocities(); ++i) {
+    qp[i] = qp[i] + EPSILON;
+    const VectorX<T>& q_ddot_pert = CalcDynamics(qp, v, u);
+
+    linearized_dynamics_results->A_lin[i] = (q_ddot_pert - q_ddot_nom)*div_eps;
+    qp[i] = qp[i] - EPSILON;
+
+  }
+
+
+  for (int i = 0; i < plant().num_actuators(); ++i) {
+    up[i] = up[i] + EPSILON;
+    const VectorX<T>& q_ddot_pert = CalcDynamics(q, v, up);
+    linearized_dynamics_results->B_lin[i] = (q_ddot_pert - q_ddot_nom)*div_eps;
+    up[i] = up[i] - EPSILON;
+  }
+
+}
 
 template <typename T>
 void TrajectoryOptimizer<T>::CalcInverseDynamics(

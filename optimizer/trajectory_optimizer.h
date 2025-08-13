@@ -17,6 +17,7 @@
 #include "optimizer/trajectory_optimizer_workspace.h"
 #include "optimizer/velocity_partials.h"
 #include "optimizer/warm_start.h"
+#include "optimizer/linearized_dynamics_results.h"
 
 #include <drake/common/eigen_types.h>
 #include <drake/multibody/plant/multibody_plant.h>
@@ -464,6 +465,12 @@ class TrajectoryOptimizer {
   const VectorX<T>& CalcDynamics(const VectorX<T>& q, 
                     const VectorX<T>& v, 
                     const VectorX<T>& u) const;
+
+//   void CalcLinearizedDynamics(
+//     const VectorX<T>& q, const VectorX<T>& v, const VectorX<T>& u, const drake::EigenPtr<MatrixX<T>> A_lin, const drake::EigenPtr<MatrixX<T>> B_lin) const;
+void CalcLinearizedDynamics(
+    const VectorX<T>& q, const VectorX<T>& v, const VectorX<T>& u, LinearizedDynamicsResults<T>* linearized_dynamics_results) const;
+
 
   /**
    * Overwrite the initial conditions x0 = [q0, v0] stored in the solver
@@ -1096,6 +1103,11 @@ class TrajectoryOptimizer {
    */
   void CalcMeritFunctionGradient(const TrajectoryOptimizerState<T>& state,
                                  VectorX<T>* g_tilde) const;
+
+  // Internal variables for calculating the linearized dynamics
+  //MatrixX<T>& A_lin_;// = MatrixX<T>::Zero(1, 1);
+  //MatrixX<T>& B_lin_;// = MatrixX<T>::Zero(1, 1);
+  //std::tuple<MatrixX<T>, MatrixX<T>> output_;// = {A_lin_, B_lin_};
 
   // Diagram of containing the plant_ model and scene graph. Needed to allocate
   // context resources.
