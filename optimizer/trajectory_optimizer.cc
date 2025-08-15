@@ -242,6 +242,7 @@ const VectorX<T>& TrajectoryOptimizer<T>::CalcDynamics(
     const VectorX<T>& q, const VectorX<T>& v, const VectorX<T>& u) const {
       // Create pointer for f_ext
       MultibodyForces<T> f_ext = MultibodyForces(plant()); // TODO: What type should this be?
+      VectorX<T> generalized_forces = VectorX<T>::Zero(plant().num_velocities());
 
       // Appropriately set the context
       auto context = dynamics_context();
@@ -256,7 +257,13 @@ const VectorX<T>& TrajectoryOptimizer<T>::CalcDynamics(
         // TODO(vincekurtz): perform this check earlier, and maybe print some
         // warnings to stdout if we're not connected (we do want to be able to run
         // problems w/o contact sometimes)
-        CalcContactForceContribution(*context, &f_ext);
+        //std::cout << "Relevant contact calculation" << std::endl;
+        //CalcContactForceContribution(*context, &f_ext);
+        //std::cout << "Done contact force calc" << std::endl;
+
+        CalcContactGeneralizedForceContribution(*context, &generalized_forces);
+        //std::cout << "generalized_forces: " << generalized_forces << std::endl;
+
       }
 
       // Set the external spatial force input port on the plant
@@ -266,21 +273,31 @@ const VectorX<T>& TrajectoryOptimizer<T>::CalcDynamics(
       for (SpatialForce body_force : body_forces) {
         external_forces[count].F_Bq_W = body_force;
         external_forces[count].body_index = BodyIndex(count);
+        //std::cout << "Body force: " << body_force << std::endl;
         count++;
       }
+
+      // external_forces appears to be holding the correct force, this just doesn't change into rotational motion in the q_ddot values...
+      // Maybe we need to make an even purer form of this?
+      // Or check to see what happens to the dynamics with inputs along that axis... Inputs are transferred!
 
       const drake::systems::InputPort<T>& applied_spatial_force_input_port = plant().get_applied_spatial_force_input_port();
       // Use port.FixValue(context, value)?
       applied_spatial_force_input_port.FixValue(context, external_forces);
 
+      const drake::systems::InputPort<T>& applied_generalized_force_input_port = plant().get_applied_generalized_force_input_port();
+      applied_generalized_force_input_port.FixValue(context, generalized_forces);
+      
+
       // Set the actuation input port on the plant
       const drake::systems::InputPort<T>& actuation_input_port = plant().get_actuation_input_port();
       actuation_input_port.FixValue(context, u); // TODO: Is the input u correct type/format?
-      actuation_input_port.Eval(*context); // This is CRITICAL for updating the cache prior to output Eval
+      //actuation_input_port.Eval(*context); // This is CRITICAL for updating the cache prior to output Eval
 
       // Query the generalized accleration output port on the plant
       // TODO: Really these ports should just be set on optimizer creation, and accessed now as needed
       const drake::systems::OutputPort<T>& generalized_acceleration_output_port = plant().get_generalized_acceleration_output_port();
+      //std::cout << "qddot: " << generalized_acceleration_output_port.Eval(*context) << std::endl;
       return generalized_acceleration_output_port.Eval(*context); // TODO: Is q_ddot the correct type/format?
     }
 
@@ -289,12 +306,13 @@ void TrajectoryOptimizer<T>::CalcLinearizedDynamics(
     const VectorX<T>& q, const VectorX<T>& v, const VectorX<T>& u, LinearizedDynamicsResults<T>* linearized_dynamics_results) const {
 
   VectorX<T> qp = q;
+  VectorX<T> vp = v;
   VectorX<T> up = u;
-  const double EPSILON = sqrt(std::numeric_limits<double>::epsilon());
+  const double EPSILON = 1e-6;//sqrt(std::numeric_limits<double>::epsilon());
   const double div_eps = 1/EPSILON;
   const VectorX<T> q_ddot_nom = CalcDynamics(q, v, u);
 
-  linearized_dynamics_results->A_lin.assign(plant().num_velocities(), VectorX<T>(plant().num_velocities()));
+  linearized_dynamics_results->A_lin.assign(2*plant().num_velocities(), VectorX<T>(plant().num_velocities()));
   linearized_dynamics_results->B_lin.assign(plant().num_actuators(), VectorX<T>(plant().num_velocities()));
 
   for (int i = 0; i < plant().num_velocities(); ++i) {
@@ -303,6 +321,16 @@ void TrajectoryOptimizer<T>::CalcLinearizedDynamics(
 
     linearized_dynamics_results->A_lin[i] = (q_ddot_pert - q_ddot_nom)*div_eps;
     qp[i] = qp[i] - EPSILON;
+
+  }
+  int j=0;
+  for (int i = plant().num_velocities(); i < 2*plant().num_velocities(); ++i) {
+    j = i - plant().num_velocities();
+    vp[j] = vp[j] + EPSILON;
+    const VectorX<T>& q_ddot_pert = CalcDynamics(q, vp, u);
+
+    linearized_dynamics_results->A_lin[i] = (q_ddot_pert - q_ddot_nom)*div_eps;
+    vp[j] = vp[j] - EPSILON;
 
   }
 
@@ -357,6 +385,173 @@ void TrajectoryOptimizer<T>::CalcInverseDynamicsSingleTimeStep(
 
   // Inverse dynamics computes tau = M*a - k(q,v) - f_ext
   *tau = plant().CalcInverseDynamics(context, a, workspace->f_ext);
+}
+
+template <typename T>
+void TrajectoryOptimizer<T>::CalcContactGeneralizedForceContribution(
+    const Context<T>& context, VectorX<T>* generalized_forces) const {
+  using std::abs;
+  using std::exp;
+  using std::log;
+  using std::max;
+  using std::pow;
+  using std::sqrt;
+
+  // Compliant contact parameters
+  const double k = params_.contact_stiffness;
+  const double sigma = params_.smoothing_factor;
+  const double dissipation_velocity = params_.dissipation_velocity;
+
+  // Friction parameters.
+  const double vs = params_.stiction_velocity;     // Regularization.
+  const double mu = params_.friction_coefficient;  // Coefficient of friction.
+
+  // Compute the distance at which contact forces are zero: we don't need to do
+  // any geometry queries beyond this distance
+  const double eps = sqrt(std::numeric_limits<double>::epsilon());
+  double threshold = -sigma * log(exp(eps / (sigma * k)) - 1.0);
+
+  // Get signed distance pairs
+  const drake::geometry::QueryObject<T>& query_object =
+      plant()
+          .get_geometry_query_input_port()
+          .template Eval<drake::geometry::QueryObject<T>>(context);
+  const drake::geometry::SceneGraphInspector<T>& inspector =
+      query_object.inspector();
+  const std::vector<SignedDistancePair<T>>& signed_distance_pairs =
+      query_object.ComputeSignedDistancePairwiseClosestPoints(threshold);
+
+  GeometryId geo_max_A;
+  GeometryId geo_max_B;
+  //T max_force_norm = 0.0;
+  //T total_force_norm = 0.0;
+  //int pair_count = 0;
+  for (const SignedDistancePair<T>& pair : signed_distance_pairs) {
+    // Normal outwards from A.
+    const drake::Vector3<T> nhat = -pair.nhat_BA_W;
+
+    // Get geometry and transformation data for the witness points
+    const GeometryId geometryA_id = pair.id_A;
+    const GeometryId geometryB_id = pair.id_B;
+
+    const Body<T>& bodyA =
+        *(plant().GetBodyFromFrameId(inspector.GetFrameId(geometryA_id)));
+    const Body<T>& bodyB =
+        *(plant().GetBodyFromFrameId(inspector.GetFrameId(geometryB_id)));
+
+    // Body poses in world.
+    const drake::math::RigidTransform<T>& X_WA =
+        plant().EvalBodyPoseInWorld(context, bodyA);
+    const drake::math::RigidTransform<T>& X_WB =
+        plant().EvalBodyPoseInWorld(context, bodyB);
+
+    // Geometry poses in body frames.
+    const drake::math::RigidTransform<T> X_AGa =
+        inspector.GetPoseInFrame(geometryA_id).template cast<T>();
+    const drake::math::RigidTransform<T> X_BGb =
+        inspector.GetPoseInFrame(geometryB_id).template cast<T>();
+
+    // Position of the witness points in the world frame.
+    const auto& p_GaCa_Ga = pair.p_ACa;
+    const RigidTransform<T> X_WGa = X_WA * X_AGa;
+    const drake::Vector3<T> p_WCa_W = X_WGa * p_GaCa_Ga;
+    const auto& p_GbCb_Gb = pair.p_BCb;
+    const RigidTransform<T> X_WGb = X_WB * X_BGb;
+    const drake::Vector3<T> p_WCb_W = X_WGb * p_GbCb_Gb;
+
+    // We define the (common, unique) contact point C as the midpoint between
+    // witness points Ca and Cb.
+    const drake::Vector3<T> p_WC = 0.5 * (p_WCa_W + p_WCb_W);
+
+    // Shift vectors.
+    const drake::Vector3<T> p_AC_W = p_WC - X_WA.translation();
+    const drake::Vector3<T> p_BC_W = p_WC - X_WB.translation();
+
+    // Velocities.
+    const SpatialVelocity<T>& V_WA =
+        plant().EvalBodySpatialVelocityInWorld(context, bodyA);
+    const SpatialVelocity<T>& V_WB =
+        plant().EvalBodySpatialVelocityInWorld(context, bodyB);
+    const SpatialVelocity<T> V_WAc = V_WA.Shift(p_AC_W);
+    const SpatialVelocity<T> V_WBc = V_WB.Shift(p_BC_W);
+
+    // Relative contact velocity.
+    const drake::Vector3<T> v_AcBc_W =
+        V_WBc.translational() - V_WAc.translational();
+
+    // Split into normal and tangential components.
+    const T vn = nhat.dot(v_AcBc_W);
+    const drake::Vector3<T> vt = v_AcBc_W - vn * nhat;
+
+    // Normal dissipation follows a smoothed Hunt and Crossley model
+    T dissipation_factor = 0.0;
+    const T s = vn / dissipation_velocity;
+    if (s < 0) {
+      dissipation_factor = 1 - s;
+    } else if (s < 2) {
+      dissipation_factor = (s - 2) * (s - 2) / 4;
+    }
+
+    // (Compliant) force in the normal direction increases linearly at a rate
+    // of k Newtons per meter, with some smoothing defined by sigma.
+    T compliant_fn;
+    const T exponent = -pair.distance / sigma;
+    if (exponent >= 37) {
+      // If the exponent is going to be very large, replace with the
+      // functional limit.
+      // N.B. x = 37 is the first integer such that exp(x)+1 = exp(x) in
+      // double precision.
+      compliant_fn = -k * pair.distance;
+    } else {
+      compliant_fn = sigma * k * log(1 + exp(exponent));
+    }
+    const T fn = compliant_fn * dissipation_factor;
+
+    // Tangential frictional component.
+    // N.B. This model is algebraically equivalent to:
+    //  ft = -mu*fn*sigmoid(||vt||/vs)*vt/||vt||.
+    // with the algebraic sigmoid function defined as sigmoid(x) =
+    // x/sqrt(1+x^2). The algebraic simplification is performed to avoid
+    // division by zero when vt = 0 (or loss of precision when close to zero).
+    const drake::Vector3<T> that_regularized =
+        -vt / sqrt(vs * vs + vt.squaredNorm());
+    const drake::Vector3<T> ft_BC_W = that_regularized * mu * fn;
+
+    // Total contact force on B at C, expressed in W.
+    const drake::Vector3<T> f_BC_W = nhat * fn + ft_BC_W;
+
+    // Spatial contact forces on bodies A and B.
+    const SpatialForce<T> F_BC_W(drake::Vector3<T>::Zero(), f_BC_W);
+    //const SpatialForce<T> F_BBo_W = F_BC_W.Shift(-p_BC_W);
+
+    const SpatialForce<T> F_AC_W(drake::Vector3<T>::Zero(), -f_BC_W);
+    //const SpatialForce<T> F_AAo_W = F_AC_W.Shift(-p_AC_W);
+
+    // Generalized contact forces on bodies A and B.
+    drake::MatrixX<T> Ja = drake::MatrixX<T>::Zero(3, plant().num_velocities());
+    drake::MatrixX<T> Jb = drake::MatrixX<T>::Zero(3, plant().num_velocities());
+    plant().CalcJacobianTranslationalVelocity(context, drake::multibody::JacobianWrtVariable::kV, bodyA.body_frame(), p_AC_W, plant().world_frame(), plant().world_frame(), &Ja);
+    plant().CalcJacobianTranslationalVelocity(context, drake::multibody::JacobianWrtVariable::kV, bodyB.body_frame(), p_BC_W, plant().world_frame(), plant().world_frame(), &Jb);
+    *generalized_forces += Ja.transpose() * -f_BC_W;
+    *generalized_forces += Jb.transpose() * f_BC_W;
+
+    // if (params().print_debug_data){
+    //   //std::cout << geometryA_id << " " << geometryB_id << " " << f_BC_W.norm() << std::endl;
+    //   pair_count = pair_count + 1;
+    //   total_force_norm += f_BC_W.norm();
+    //   if (f_BC_W.norm() > max_force_norm){
+    //     geo_max_A = geometryA_id;
+    //     geo_max_B = geometryB_id;
+    //     max_force_norm = f_BC_W.norm();
+    //   }
+      
+    // }
+  }
+  // if (params().print_debug_data){
+  //   //std::cout << "Num pairs: " << pair_count << std::endl;
+  //   std::cout << geo_max_A << " " << geo_max_B << " " << max_force_norm << " " << total_force_norm << std::endl;
+  //   //std::cout << " " << std::endl;
+  // }
 }
 
 template <typename T>

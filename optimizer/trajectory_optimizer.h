@@ -719,6 +719,9 @@ void CalcLinearizedDynamics(
   void CalcContactForceContribution(const Context<T>& context,
                                     MultibodyForces<T>* forces) const;
 
+  void CalcContactGeneralizedForceContribution(const Context<T>& context,
+                                    VectorX<T>* generalized_forces) const;
+
   /**
    * Compute the mapping from qdot to v, v = N+(q)*qdot, at each time step.
    *
