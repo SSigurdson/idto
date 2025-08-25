@@ -20,6 +20,11 @@ struct LinearizedDynamicsResults {
   std::vector<VectorX<T>> B_lin;
 };
 
+template <typename T>
+struct ConstraintJacobianResult {
+  std::vector<VectorX<T>> dhdq;
+};
+
 }  // namespace optimizer
 }  // namespace idto
 

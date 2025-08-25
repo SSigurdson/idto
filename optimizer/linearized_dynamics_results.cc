@@ -10,4 +10,6 @@ namespace optimizer {
 
 DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_NONSYMBOLIC_SCALARS(
     struct ::idto::optimizer::LinearizedDynamicsResults)
+DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_NONSYMBOLIC_SCALARS(
+    struct ::idto::optimizer::ConstraintJacobianResult)
 

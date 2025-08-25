@@ -466,9 +466,12 @@ class TrajectoryOptimizer {
                     const VectorX<T>& v, 
                     const VectorX<T>& u) const;
 
+  void CalcConstraintJacobianSingleTimestep(
+    const VectorX<T>& q, ConstraintJacobianResult<T>* constraint_jacobian_result) const;
+
 //   void CalcLinearizedDynamics(
 //     const VectorX<T>& q, const VectorX<T>& v, const VectorX<T>& u, const drake::EigenPtr<MatrixX<T>> A_lin, const drake::EigenPtr<MatrixX<T>> B_lin) const;
-void CalcLinearizedDynamics(
+  void CalcLinearizedDynamics(
     const VectorX<T>& q, const VectorX<T>& v, const VectorX<T>& u, LinearizedDynamicsResults<T>* linearized_dynamics_results) const;
 
 
@@ -1118,6 +1121,8 @@ void CalcLinearizedDynamics(
 
   // A model of the system that we are trying to find an optimal trajectory for.
   const MultibodyPlant<T>* plant_{nullptr};
+
+  std::unique_ptr<TrajectoryOptimizerWorkspace<T>> workspace_;
 
   // A context corresponding to plant_, to enable dynamics computations. Must be
   // connected to a larger Diagram with a SceneGraph for systems with contact.

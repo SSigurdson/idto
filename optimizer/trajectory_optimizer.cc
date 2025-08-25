@@ -56,6 +56,13 @@ TrajectoryOptimizer<T>::TrajectoryOptimizer(const Diagram<T>* diagram,
   //A_lin_ = MatrixX<T>::Zero(plant_->num_velocities(), plant_->num_velocities());
   //B_lin_ = MatrixX<T>::Zero(plant_->num_velocities(), plant_->num_actuators());
 
+  // Create a TrajectoryOptimizerWorkspace for calculations
+  //std::cout << "HERE 0" << std::endl;
+
+  workspace_ = std::make_unique<TrajectoryOptimizerWorkspace<T>>(1, *plant);
+  //std::cout << "HERE 0.5" << std::endl;
+
+
   // Define joint damping coefficients.
   joint_damping_ = VectorX<T>::Zero(plant_->num_velocities());
   for (JointIndex j(0); j < plant_->num_joints(); ++j) {
@@ -250,6 +257,7 @@ const VectorX<T>& TrajectoryOptimizer<T>::CalcDynamics(
       plant().SetVelocities(context, v);
 
       plant().CalcForceElementsContribution(*context, &f_ext); // TODO: Is f_ext passed correctly now by reference?
+      
 
       // Add in contact force contribution to f_ext
       if (plant().geometry_source_is_registered()) {
@@ -264,6 +272,7 @@ const VectorX<T>& TrajectoryOptimizer<T>::CalcDynamics(
         CalcContactGeneralizedForceContribution(*context, &generalized_forces);
         //std::cout << "generalized_forces: " << generalized_forces << std::endl;
 
+
       }
 
       // Set the external spatial force input port on the plant
@@ -273,7 +282,7 @@ const VectorX<T>& TrajectoryOptimizer<T>::CalcDynamics(
       for (SpatialForce body_force : body_forces) {
         external_forces[count].F_Bq_W = body_force;
         external_forces[count].body_index = BodyIndex(count);
-        //std::cout << "Body force: " << body_force << std::endl;
+        std::cout << "Body force: " << body_force << std::endl;
         count++;
       }
 
@@ -287,6 +296,7 @@ const VectorX<T>& TrajectoryOptimizer<T>::CalcDynamics(
 
       const drake::systems::InputPort<T>& applied_generalized_force_input_port = plant().get_applied_generalized_force_input_port();
       applied_generalized_force_input_port.FixValue(context, generalized_forces);
+      //std::cout << "generalized_forces 2: " << generalized_forces << std::endl;
       
 
       // Set the actuation input port on the plant
@@ -296,6 +306,8 @@ const VectorX<T>& TrajectoryOptimizer<T>::CalcDynamics(
 
       // Query the generalized accleration output port on the plant
       // TODO: Really these ports should just be set on optimizer creation, and accessed now as needed
+      std::cout << "generalized_forces: " << generalized_forces << std::endl;
+      std::cout << "u: " << u << std::endl;
       const drake::systems::OutputPort<T>& generalized_acceleration_output_port = plant().get_generalized_acceleration_output_port();
       //std::cout << "qddot: " << generalized_acceleration_output_port.Eval(*context) << std::endl;
       return generalized_acceleration_output_port.Eval(*context); // TODO: Is q_ddot the correct type/format?
@@ -308,7 +320,7 @@ void TrajectoryOptimizer<T>::CalcLinearizedDynamics(
   VectorX<T> qp = q;
   VectorX<T> vp = v;
   VectorX<T> up = u;
-  const double EPSILON = 1e-6;//sqrt(std::numeric_limits<double>::epsilon());
+  const double EPSILON = 1e-3;//sqrt(std::numeric_limits<double>::epsilon());
   const double div_eps = 1/EPSILON;
   const VectorX<T> q_ddot_nom = CalcDynamics(q, v, u);
 
@@ -340,6 +352,80 @@ void TrajectoryOptimizer<T>::CalcLinearizedDynamics(
     const VectorX<T>& q_ddot_pert = CalcDynamics(q, v, up);
     linearized_dynamics_results->B_lin[i] = (q_ddot_pert - q_ddot_nom)*div_eps;
     up[i] = up[i] - EPSILON;
+  }
+
+}
+
+template <typename T>
+void TrajectoryOptimizer<T>::CalcConstraintJacobianSingleTimestep(
+    const VectorX<T>& q, ConstraintJacobianResult<T>* constraint_jacobian_result) const {
+
+  using std::abs;
+  using std::max;
+
+  // const VectorX<T> qp = q;
+  // VectorX<T> vp = VectorX<T>::Zero(plant().num_velocities());
+  // VectorX<T> ap = VectorX<T>::Zero(plant().num_velocities());
+
+  workspace_->q_size_tmp1 = q; // q
+  workspace_->v_size_tmp1 = VectorX<T>::Zero(plant().num_velocities()); // v
+  workspace_->a_size_tmp1 = VectorX<T>::Zero(plant().num_velocities()); // a
+  workspace_->tau_size_tmp1 = VectorX<T>::Zero(plant().num_velocities()); // tau nominal
+  workspace_->tau_size_tmp2 = VectorX<T>::Zero(plant().num_velocities()); // tau perturbed
+  const double EPSILON = sqrt(std::numeric_limits<double>::epsilon());
+  //const double div_eps = 1/EPSILON;
+  //std::cout << "HERE 1" << std::endl;
+  //TrajectoryOptimizerWorkspace<T> workspace = TrajectoryOptimizerWorkspace(1, plant());
+  plant().SetPositions(dynamics_context(), workspace_->q_size_tmp1);
+  plant().SetVelocities(dynamics_context(), workspace_->v_size_tmp1);
+  // VectorX<T> tau_nom = VectorX<T>::Zero(plant().num_velocities());
+  // VectorX<T> tau_p = VectorX<T>::Zero(plant().num_velocities());
+  CalcInverseDynamicsSingleTimeStep(*dynamics_context(), workspace_->a_size_tmp1, workspace_.get(), &(workspace_->tau_size_tmp1));
+
+  constraint_jacobian_result->dhdq.assign(plant().num_positions(), VectorX<T>(plant().num_velocities() - plant().num_actuators()));
+
+  T dq_i;
+  T temp;
+  T dv_i;
+  T da_i;
+
+  for (int i = 0; i < plant().num_positions(); ++i) {
+    dq_i = EPSILON*max(1.0, abs(workspace_->q_size_tmp1[i]));
+
+    // Make dqt_i exactly representable to minimize floating point error
+    // const T temp = qp[i] + dq_i;
+    temp = workspace_->q_size_tmp1[i] + dq_i;
+    dq_i = temp - workspace_->q_size_tmp1[i];
+
+    dv_i = dq_i / time_step();
+    da_i = dv_i / time_step();
+
+    //qp[i] = qp[i] + dq_i;
+    // vp[i] = vp[i] - dv_i;
+    // ap[i] = ap[i] - 2*da_i;
+    workspace_->v_size_tmp1[i] = workspace_->v_size_tmp1[i] - dv_i;
+    workspace_->a_size_tmp1[i] = workspace_->a_size_tmp1[i] - 2*da_i;
+
+
+    plant().SetPositions(dynamics_context(), workspace_->q_size_tmp1);
+    plant().SetVelocities(dynamics_context(), workspace_->v_size_tmp1);
+    // std::cout << "q_eps new: " << qp << std::endl;
+    // std::cout << "v new: " << vp << std::endl;
+    // std::cout << "a new: " << ap << std::endl;
+    CalcInverseDynamicsSingleTimeStep(*dynamics_context(), workspace_->a_size_tmp1, workspace_.get(), &(workspace_->tau_size_tmp2));
+
+    // Check how they do this assignment below, create this object, create python bindings
+    // Ensure calls to CalcInverseDynamics are with the right rype
+    constraint_jacobian_result->dhdq[i] = ((workspace_->tau_size_tmp2 - workspace_->tau_size_tmp1)/dq_i).segment(plant().num_actuators(), plant().num_velocities() - plant().num_actuators());
+    // std::cout << "tau_p: " << tau_p << std::endl;
+    // std::cout << "tau_nom: " << tau_nom << std::endl;
+    // std::cout << "col element: " << constraint_jacobian_result->dhdq[i] << std::endl;
+    //qp[i] = qp[i] - dq_i;
+    // vp[i] = vp[i] + dv_i;
+    // ap[i] = ap[i] + 2*da_i;
+    workspace_->v_size_tmp1[i] = workspace_->v_size_tmp1[i] + dv_i;
+    workspace_->a_size_tmp1[i] = workspace_->a_size_tmp1[i] + 2*da_i;
+
   }
 
 }
@@ -522,7 +608,11 @@ void TrajectoryOptimizer<T>::CalcContactGeneralizedForceContribution(
 
     // Spatial contact forces on bodies A and B.
     const SpatialForce<T> F_BC_W(drake::Vector3<T>::Zero(), f_BC_W);
+
     //const SpatialForce<T> F_BBo_W = F_BC_W.Shift(-p_BC_W);
+    std::cout << "k: " << k << std::endl;
+    std::cout << "f_BC_W:" << f_BC_W << std::endl;
+    std::cout << "p_WC:" << p_WC << std::endl;
 
     const SpatialForce<T> F_AC_W(drake::Vector3<T>::Zero(), -f_BC_W);
     //const SpatialForce<T> F_AAo_W = F_AC_W.Shift(-p_AC_W);
@@ -858,6 +948,11 @@ void TrajectoryOptimizer<T>::CalcInverseDynamicsPartialsFiniteDiff(
       // tau[t-1] = ID(q[t], v[t], a[t-1])
       plant().SetPositions(&context_t, q_eps_t);
       plant().SetVelocities(&context_t, v_eps_t);
+      // if (t < 3){
+      //   std::cout << "q_eps orig: " << q[t+1] << std::endl;
+      //   std::cout << "v_eps orig: " << v_eps_tp << std::endl;
+      //   std::cout << "a_eps orig: " << a_eps_t << std::endl;
+      // }
       CalcInverseDynamicsSingleTimeStep(context_t, a_eps_tm, &workspace,
                                         &tau_eps_tm);
       dtau_dqp[t - 1].col(i) = (tau_eps_tm - tau[t - 1]) / dq_i;
@@ -869,6 +964,11 @@ void TrajectoryOptimizer<T>::CalcInverseDynamicsPartialsFiniteDiff(
         CalcInverseDynamicsSingleTimeStep(context_t, a_eps_t, &workspace,
                                           &tau_eps_t);
         dtau_dqt[t].col(i) = (tau_eps_t - tau[t]) / dq_i;
+        // if (t<3){
+        //   std::cout << "tau_ept_t" << tau_eps_t << std::endl;
+        //   std::cout << "tau[t]" << tau[t] << std::endl;
+        //   std::cout << "col element: " << dtau_dqt[t].col(i) << std::endl;
+        // }
       }
 
       // Unperturb q_t[i], v_t[i], and a_t[i]

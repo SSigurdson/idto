@@ -102,7 +102,7 @@ class Interpolator(LeafSystem):
         #else:
         #    lamb = (t-trajectory.dt*ind)/trajectory.dt
         #    u = self.Bv @ ((1-lamb)*trajectory.tau[:, ind] + lamb*trajectory.tau[:, ind+1]) 
-        u = self.Bv @ trajectory.tau.value(context.get_time() -
+        u = trajectory.tau.value(context.get_time() -
                                            trajectory.start_time)
         output.SetFromVector(u)
 
@@ -240,12 +240,12 @@ class ModelPredictiveController(LeafSystem):
         """
         pass
 
-class OpenLoopController(LeafSystem):
+class OpenLoopPositionController(LeafSystem):
     """
     A Drake system that implements an Open Loop controller.
     """
 
-    def __init__(self, optimizer, q_guess, nq, nv):
+    def __init__(self, optimizer, q_guess, nq, nv, nu):
         """
         Construct the Open Loop controller system, which takes no input and sends
         a StoredTrajectory as output, based on Inverse Dynamics. 
@@ -266,6 +266,8 @@ class OpenLoopController(LeafSystem):
 
         self.optimizer = optimizer
         self.nq = nq
+        self.nv = nv
+        self.nu = nu
 
         # Allocate a warm-start
         self.q_guess = q_guess
@@ -322,7 +324,7 @@ class OpenLoopController(LeafSystem):
         #tau_knots = tau_state
         #tau_knots.append(tau_state[-1])  # Repeat the last control input
         v_knots_norm = np.linalg.norm(v_knots, axis=0)
-        tau_knots = np.zeros(v_knots.shape)#np.array(tau_knots).T
+        tau_knots = np.zeros((self.nu, v_knots.shape[1]))#np.array(tau_knots).T
 
         t3 = time.time()
         # Create the StoredTrajectory object
@@ -346,6 +348,99 @@ class OpenLoopController(LeafSystem):
         #print("Part1_3: ", (t2 - t13)/(t2-t1))
         #print("Part2: ", (t3-t2)/(t4-t1)) #3%
         #print("Part3: ", (t4-t3)/(t4-t1)) #15%
+
+        return trajectory
+
+    def UpdateNominalTrajectory(self, context):
+        """
+        Shift the nominal trajectory to account for the current state.
+        This may or may not be useful depending on the specifics of the task.
+        """
+        pass
+
+class OpenLoopTorqueController(LeafSystem):
+    """
+    A Drake system that implements an Open Loop controller.
+    """
+
+    def __init__(self, optimizer, input_commands, init_state, manipulator_delta, nq):
+        """
+        Construct the Open Loop controller system, which takes no input and sends
+        a StoredTrajectory as output, which just provides the requested torques. 
+
+                         -------------------------------
+                         |                             |
+                         |     OpenLoopController      |  --->  trajectory
+                         |                             |
+                         -------------------------------
+
+        Args:
+            optimizer: A TrajectoryOptimizer object that can provide ID
+            input_commands: The open loop input commands to send
+        """
+        LeafSystem.__init__(self)
+
+        self.optimizer = optimizer
+        self.nq = nq
+
+        # Allocate a warm-start
+        self.input_commands = input_commands
+        self.init_state = init_state
+        self.manipulator_delta = manipulator_delta
+
+        # Specify the timestep we'll use to discretize the trajectory
+        self.time_step = self.optimizer.time_step()
+        self.num_steps = self.optimizer.num_steps()
+
+        self.state = self.StoreOptimizerSolution(self.input_commands, self.init_state, self.manipulator_delta, 0.0)
+        self.stored_trajectory = self.DeclareAbstractState(Value(self.state))
+
+        # Declare the output port
+        self.trajectory_output_port = self.DeclareStateOutputPort(
+            "optimal_trajectory", self.stored_trajectory)
+        
+    def ResetOpenLoopTrajectory(self, context,  input_commands, init_state, manipulator_delta):
+
+        # Store the solution in the abstract state
+        context.get_mutable_abstract_state(self.stored_trajectory).SetFrom(
+            Value(self.StoreOptimizerSolution(input_commands, init_state, manipulator_delta, 0.0)))
+        
+        return EventStatus.Succeeded()
+
+
+    def StoreOptimizerSolution(self, input_commands, init_state, manipulator_delta, start_time):
+        """
+
+        Args:
+            input_commands: The open loop input commands
+            start_time: The time at which the trajectory starts
+
+        Returns:
+            A StoredTrajectory object containing an interpolation of the solution.
+        """
+
+        q_state = input_commands
+
+
+        # Create numpy arrays with knot points for iterpolation of the solution
+        # along the actuated DoFs
+        time_steps = np.linspace(
+            0, self.time_step * self.num_steps, self.num_steps + 1)
+        q_knots = np.linspace(init_state, init_state + 2000*manipulator_delta, self.num_steps+1).T
+        v_knots = np.gradient(q_knots, axis=1)
+        tau_knots = 0*np.array(input_commands).T
+        zero_knots = np.zeros((self.nq, self.num_steps+1))
+
+        # Create the StoredTrajectory object
+        trajectory = StoredTrajectory()
+        trajectory.start_time = start_time
+        
+        trajectory.q = PiecewisePolynomial.CubicWithContinuousSecondDerivatives(
+            time_steps, q_knots)
+        trajectory.v = PiecewisePolynomial.CubicWithContinuousSecondDerivatives(
+            time_steps, v_knots)
+        trajectory.tau = PiecewisePolynomial.CubicWithContinuousSecondDerivatives(
+            time_steps, tau_knots)
 
         return trajectory
 

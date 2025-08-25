@@ -35,6 +35,7 @@ using idto::optimizer::TrajectoryOptimizerState;
 using idto::optimizer::WarmStart;
 using idto::optimizer::ConvergenceReason;
 using idto::optimizer::LinearizedDynamicsResults;
+using idto::optimizer::ConstraintJacobianResult;
 
 
 void bind_trajectory_optimizer(py::module_& m) {
@@ -108,6 +109,12 @@ void bind_trajectory_optimizer(py::module_& m) {
               const VectorX<double>& u,
               LinearizedDynamicsResults<double>* linearized_dynamics_results) {
              optimizer.CalcLinearizedDynamics(q, v, u, linearized_dynamics_results);
+           })
+      .def("CalcConstraintJacobianSingleTimestep",
+           [](TrajectoryOptimizer<double>& optimizer,
+              const VectorX<double>& q,
+              ConstraintJacobianResult<double>* constraint_jacobian_result) {
+             optimizer.CalcConstraintJacobianSingleTimestep(q, constraint_jacobian_result);
            })
       .def("CreateWarmStart", &TrajectoryOptimizer<double>::CreateWarmStart)
       .def("ResetInitialConditions",
