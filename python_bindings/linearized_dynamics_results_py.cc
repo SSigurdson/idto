@@ -21,5 +21,7 @@ void bind_constraint_jacobian_result(py::module_& m) {
   py::class_<ConstraintJacobianResult<double>>(m,
                                                   "ConstraintJacobianResult")
       .def(py::init<>())
-      .def_readonly("dhdq", &ConstraintJacobianResult<double>::dhdq);
+      .def_readonly("dhdq", &ConstraintJacobianResult<double>::dhdq)
+      .def_readonly("dhdqp", &ConstraintJacobianResult<double>::dhdqp)
+      .def_readonly("dhdqm", &ConstraintJacobianResult<double>::dhdqm);
 }

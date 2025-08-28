@@ -370,6 +370,9 @@ void TrajectoryOptimizer<T>::CalcConstraintJacobianSingleTimestep(
   workspace_->q_size_tmp1 = q; // q
   workspace_->v_size_tmp1 = VectorX<T>::Zero(plant().num_velocities()); // v
   workspace_->a_size_tmp1 = VectorX<T>::Zero(plant().num_velocities()); // a
+  workspace_->q_size_tmp2 = q; // q plus calc
+  workspace_->v_size_tmp2 = VectorX<T>::Zero(plant().num_velocities()); // v plus calc
+  workspace_->a_size_tmp2 = VectorX<T>::Zero(plant().num_velocities()); // a plus calc
   workspace_->tau_size_tmp1 = VectorX<T>::Zero(plant().num_velocities()); // tau nominal
   workspace_->tau_size_tmp2 = VectorX<T>::Zero(plant().num_velocities()); // tau perturbed
   const double EPSILON = sqrt(std::numeric_limits<double>::epsilon());
@@ -382,12 +385,17 @@ void TrajectoryOptimizer<T>::CalcConstraintJacobianSingleTimestep(
   // VectorX<T> tau_p = VectorX<T>::Zero(plant().num_velocities());
   CalcInverseDynamicsSingleTimeStep(*dynamics_context(), workspace_->a_size_tmp1, workspace_.get(), &(workspace_->tau_size_tmp1));
 
-  constraint_jacobian_result->dhdq.assign(plant().num_positions(), VectorX<T>(plant().num_velocities() - plant().num_actuators()));
+  constraint_jacobian_result->dhdq.assign(plant().num_positions(), VectorX<T>(plant().num_velocities()));// - plant().num_actuators()));
+  constraint_jacobian_result->dhdqp.assign(plant().num_positions(), VectorX<T>(plant().num_velocities()));// - plant().num_actuators()));
+  constraint_jacobian_result->dhdqm.assign(plant().num_positions(), VectorX<T>(plant().num_velocities()));// - plant().num_actuators()));
 
   T dq_i;
   T temp;
   T dv_i;
   T da_i;
+
+  MatrixX<T>& M = workspace_->mass_matrix_size_tmp;
+  plant().CalcMassMatrix(*dynamics_context(), &M);
 
   for (int i = 0; i < plant().num_positions(); ++i) {
     dq_i = EPSILON*max(1.0, abs(workspace_->q_size_tmp1[i]));
@@ -406,6 +414,10 @@ void TrajectoryOptimizer<T>::CalcConstraintJacobianSingleTimestep(
     workspace_->v_size_tmp1[i] = workspace_->v_size_tmp1[i] - dv_i;
     workspace_->a_size_tmp1[i] = workspace_->a_size_tmp1[i] - 2*da_i;
 
+    workspace_->q_size_tmp2[i] = workspace_->q_size_tmp2[i] + dq_i;
+    workspace_->v_size_tmp2[i] = workspace_->v_size_tmp2[i] + dv_i;
+    workspace_->a_size_tmp2[i] = workspace_->a_size_tmp2[i] + da_i;
+
 
     plant().SetPositions(dynamics_context(), workspace_->q_size_tmp1);
     plant().SetVelocities(dynamics_context(), workspace_->v_size_tmp1);
@@ -416,15 +428,26 @@ void TrajectoryOptimizer<T>::CalcConstraintJacobianSingleTimestep(
 
     // Check how they do this assignment below, create this object, create python bindings
     // Ensure calls to CalcInverseDynamics are with the right rype
-    constraint_jacobian_result->dhdq[i] = ((workspace_->tau_size_tmp2 - workspace_->tau_size_tmp1)/dq_i).segment(plant().num_actuators(), plant().num_velocities() - plant().num_actuators());
-    // std::cout << "tau_p: " << tau_p << std::endl;
-    // std::cout << "tau_nom: " << tau_nom << std::endl;
+    constraint_jacobian_result->dhdq[i] = ((workspace_->tau_size_tmp2 - workspace_->tau_size_tmp1)/dq_i);//.segment(plant().num_actuators(), plant().num_velocities() - plant().num_actuators());
+    // std::cout << "tau_p: " << workspace_->tau_size_tmp2 << std::endl;
+    // std::cout << "tau_nom: " << workspace_->tau_size_tmp1 << std::endl;
     // std::cout << "col element: " << constraint_jacobian_result->dhdq[i] << std::endl;
+
+    plant().SetPositions(dynamics_context(), workspace_->q_size_tmp2);
+    plant().SetVelocities(dynamics_context(), workspace_->v_size_tmp2);
+    CalcInverseDynamicsSingleTimeStep(*dynamics_context(), workspace_->a_size_tmp2, workspace_.get(), &(workspace_->tau_size_tmp2));
+    constraint_jacobian_result->dhdqp[i] = ((workspace_->tau_size_tmp2 - workspace_->tau_size_tmp1)/dq_i);//.segment(plant().num_actuators(), plant().num_velocities() - plant().num_actuators());
+    
+    constraint_jacobian_result->dhdqm[i] = 1 / time_step() / time_step() * M.col(i);
     //qp[i] = qp[i] - dq_i;
     // vp[i] = vp[i] + dv_i;
     // ap[i] = ap[i] + 2*da_i;
     workspace_->v_size_tmp1[i] = workspace_->v_size_tmp1[i] + dv_i;
     workspace_->a_size_tmp1[i] = workspace_->a_size_tmp1[i] + 2*da_i;
+
+    workspace_->q_size_tmp2[i] = workspace_->q_size_tmp2[i] - dq_i;
+    workspace_->v_size_tmp2[i] = workspace_->v_size_tmp2[i] - dv_i;
+    workspace_->a_size_tmp2[i] = workspace_->a_size_tmp2[i] - da_i;
 
   }
 
@@ -956,6 +979,9 @@ void TrajectoryOptimizer<T>::CalcInverseDynamicsPartialsFiniteDiff(
       CalcInverseDynamicsSingleTimeStep(context_t, a_eps_tm, &workspace,
                                         &tau_eps_tm);
       dtau_dqp[t - 1].col(i) = (tau_eps_tm - tau[t - 1]) / dq_i;
+      // if (t<3){
+      //   std::cout << "Col element: " << dtau_dqp[t - 1].col(i) << std::endl;
+      // }
 
       // tau[t] = ID(q[t+1], v[t+1], a[t])
       if (t < num_steps()) {
@@ -1561,12 +1587,24 @@ void TrajectoryOptimizer<T>::CalcHessian(
     dgt_dqt += dvt_dqt[t].transpose() * Qv * dvt_dqt[t];
     dgt_dqt += dtau_dqp[t - 1].transpose() * R * dtau_dqp[t - 1];
     dgt_dqt += dtau_dqt[t].transpose() * R * dtau_dqt[t];
+    
     if (t < num_steps() - 1) {
       dgt_dqt += dtau_dqm[t + 1].transpose() * R * dtau_dqm[t + 1];
       dgt_dqt += dvt_dqm[t + 1].transpose() * Qv * dvt_dqm[t + 1];
     } else {
       dgt_dqt += dvt_dqm[t + 1].transpose() * Qf_v * dvt_dqm[t + 1];
     }
+    // if (t==2){
+    //   std::cout << "dtau_dqp[t-1]: " << dtau_dqp[t - 1] << std::endl;
+    //   std::cout << "dtau_dqt[t]: " << dtau_dqt[t] << std::endl;
+    //   std::cout << "dtau_dqm[t+1]: " << dtau_dqm[t + 1] << std::endl;
+    //   std::cout << "prob_.R: " << prob_.R << std::endl;
+    //   std::cout << "dt: " << dt << std::endl;
+    //   std::cout << "R: " << R << std::endl;
+    //   std::cout << "Qq: " << Qq << std::endl;
+    //   std::cout << "Qv: " << Qv << std::endl;
+    //   std::cout << "dgt_dqt: " << dgt_dqt << std::endl;
+    // }
 
     // dg_t/dq_{t+1}
     MatrixX<T>& dgt_dqp = B[t + 1];
@@ -1744,7 +1782,10 @@ void TrajectoryOptimizer<T>::CalcEqualityConstraintJacobian(
       // ∂hₜⁱ/∂qₜ
       if (t > 0) {
         J->block(t * n_unactuated + i, t * nq, 1, nq) =
+            //VectorX<T>::Zero(nq);
             id_partials.dtau_dqt[t].row(unactuated_dofs()[i]);
+        
+        
       }
 
       // ∂hₜⁱ/∂qₜ₋₁
@@ -1761,8 +1802,14 @@ void TrajectoryOptimizer<T>::CalcEqualityConstraintJacobian(
   // so we'll return the scaled version of the constraint Jacobian J̃ = JD
   if (params_.scaling) {
     const VectorX<T>& D = EvalScaleFactors(state);
+    // std::cout << "Scaling factors: " << D.segment(18, 9) << std::endl;
     *J = (*J) * D.asDiagonal();
   }
+  // for (int t = 1; t < 3; ++t) {
+  //   for (int i = 0; i < n_unactuated; ++i) {
+  //     std::cout << "dhdq row: " << J->block(t * n_unactuated + i, t * nq, 1, nq) << std::endl;
+  //   }
+  // }
 }
 
 template <typename T>

@@ -23,6 +23,8 @@ struct LinearizedDynamicsResults {
 template <typename T>
 struct ConstraintJacobianResult {
   std::vector<VectorX<T>> dhdq;
+  std::vector<VectorX<T>> dhdqp;
+  std::vector<VectorX<T>> dhdqm;
 };
 
 }  // namespace optimizer

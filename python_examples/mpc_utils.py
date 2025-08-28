@@ -97,7 +97,7 @@ class Interpolator(LeafSystem):
         trajectory = self.EvalAbstractInput(context, 0).get_value()
         t = (context.get_time() - trajectory.start_time)
         ind = np.min((int(np.floor(t/trajectory.dt)), trajectory.q.shape[1]-1))
-        if ind == trajectory.tau.shape[1]:
+        if ind == trajectory.tau.shape[1]-1:
             u = trajectory.tau[:, ind]
         else:
             lamb = (t-trajectory.dt*ind)/trajectory.dt
